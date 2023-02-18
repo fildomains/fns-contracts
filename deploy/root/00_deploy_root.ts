@@ -14,7 +14,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     return true
   }
 
-  const registry = await ethers.getContract('ENSRegistry')
+  const registry = await ethers.getContract('Registry')
 
   await deploy('Root', {
     from: deployer,
@@ -61,8 +61,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   return true
 }
 
-func.id = 'root'
-func.tags = ['root', 'Root']
-func.dependencies = ['ENSRegistry']
+func.id = 'Root'
+func.tags = ['Root']
+func.dependencies = ['Registry']
 
 export default func

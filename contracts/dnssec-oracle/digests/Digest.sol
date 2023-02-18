@@ -1,4 +1,5 @@
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
 /**
  * @dev An interface for contracts implementing a DNSSEC digest.

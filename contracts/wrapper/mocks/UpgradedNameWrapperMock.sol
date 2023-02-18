@@ -1,21 +1,22 @@
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
+
 import "../INameWrapper.sol";
-import "../../registry/ENS.sol";
-import "../../ethregistrar/IBaseRegistrar.sol";
+import "../../registry/FNS.sol";
+import "../../registrar/IBaseRegistrar.sol";
 
 contract UpgradedNameWrapperMock {
     address public immutable oldNameWrapper;
-    ENS public immutable ens;
+    FNS public immutable fns;
     IBaseRegistrar public immutable registrar;
 
     constructor(
         address _oldNameWrapper,
-        ENS _ens,
+        FNS _fns,
         IBaseRegistrar _registrar
     ) {
         oldNameWrapper = _oldNameWrapper;
-        ens = _ens;
+        fns = _fns;
         registrar = _registrar;
     }
 
@@ -29,7 +30,7 @@ contract UpgradedNameWrapperMock {
         uint64 expiry
     );
 
-    event WrapETH2LD(
+    event Wrap2LD(
         string label,
         address wrappedOwner,
         uint32 fuses,
@@ -37,7 +38,7 @@ contract UpgradedNameWrapperMock {
         address resolver
     );
 
-    function wrapETH2LD(
+    function wrap2LD(
         string calldata label,
         address wrappedOwner,
         uint32 fuses,
@@ -53,7 +54,7 @@ contract UpgradedNameWrapperMock {
                 registrar.isApprovedForAll(registrant, msg.sender),
             "Unauthorised"
         );
-        emit WrapETH2LD(label, wrappedOwner, fuses, expiry, resolver);
+        emit Wrap2LD(label, wrappedOwner, fuses, expiry, resolver);
     }
 
     function setSubnodeRecord(
@@ -67,14 +68,14 @@ contract UpgradedNameWrapperMock {
     ) public {
         bytes32 labelhash = keccak256(bytes(label));
         bytes32 node = keccak256(abi.encodePacked(parentNode, labelhash));
-        address owner = ens.owner(node);
+        address owner = fns.owner(node);
         require(
             msg.sender == oldNameWrapper ||
                 owner == msg.sender ||
-                ens.isApprovedForAll(owner, msg.sender),
+                fns.isApprovedForAll(owner, msg.sender),
             "Not owner/approved or previous nameWrapper controller"
         );
-        ens.setOwner(node, address(this));
+        fns.setOwner(node, address(this));
         emit SetSubnodeRecord(
             parentNode,
             label,

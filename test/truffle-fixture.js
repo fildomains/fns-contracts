@@ -34,24 +34,20 @@ module.exports = async function(hre) {
     const curve = await deploy(EllipticCurve);
     const p256 = await deploy(P256SHA256Algorithm, curve.address);
 
-    let tasks = [];
-
     if (dev) {
       const dummyalgorithm = await deploy(DummyAlgorithm);
-      tasks.push(dnssec.setAlgorithm(253, dummyalgorithm.address));
-      tasks.push(dnssec.setAlgorithm(254, dummyalgorithm.address));
+      await dnssec.setAlgorithm(253, dummyalgorithm.address);
+      await dnssec.setAlgorithm(254, dummyalgorithm.address);
 
       const dummydigest = await deploy(DummyDigest);
-      tasks.push(dnssec.setDigest(253, dummydigest.address));
+      await dnssec.setDigest(253, dummydigest.address);
     }
 
-    tasks.push(dnssec.setAlgorithm(5, rsasha1.address));
-    tasks.push(dnssec.setAlgorithm(7, rsasha1.address));
-    tasks.push(dnssec.setAlgorithm(8, rsasha256.address));
-    tasks.push(dnssec.setAlgorithm(13, p256.address));
+    await dnssec.setAlgorithm(5, rsasha1.address);
+    await dnssec.setAlgorithm(7, rsasha1.address);
+    await dnssec.setAlgorithm(8, rsasha256.address);
+    await dnssec.setAlgorithm(13, p256.address);
 
-    tasks.push(dnssec.setDigest(1, sha1.address));
-    tasks.push(dnssec.setDigest(2, sha256.address));
-
-    await Promise.all(tasks);
+    await dnssec.setDigest(1, sha1.address);
+    await dnssec.setDigest(2, sha256.address);
 };

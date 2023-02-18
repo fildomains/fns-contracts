@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ~0.8.17;
 
 interface INameWrapperUpgrade {
@@ -12,7 +12,7 @@ interface INameWrapperUpgrade {
         uint64 expiry
     ) external;
 
-    function wrapETH2LD(
+    function wrap2LD(
         string calldata label,
         address wrappedOwner,
         uint32 fuses,

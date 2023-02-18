@@ -2,6 +2,7 @@ import packet from 'dns-packet'
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+const utils = require('../../scripts/utils');
 
 const realAnchors = [
   {
@@ -63,7 +64,7 @@ function encodeAnchors(anchors: any[]) {
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, network } = hre
   const { deploy } = deployments
-  const { deployer } = await getNamedAccounts()
+  const { deployer, owner } = await getNamedAccounts()
 
   const anchors = realAnchors.slice()
   let algorithms: Record<number, string> = {
@@ -95,24 +96,29 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   for (const [id, alg] of Object.entries(algorithms)) {
     const address = (await deployments.get(alg)).address
     if (address != (await dnssec.algorithms(id))) {
-      transactions.push(await dnssec.setAlgorithm(id, address))
+      const tx = await dnssec.setAlgorithm(id, address)
+      await tx.wait()
     }
   }
 
   for (const [id, digest] of Object.entries(digests)) {
     const address = (await deployments.get(digest)).address
     if (address != (await dnssec.digests(id))) {
-      transactions.push(await dnssec.setDigest(id, address))
+      const tx = await dnssec.setDigest(id, address)
+      await tx.wait()
     }
   }
 
   console.log(
     `Waiting on ${transactions.length} transactions setting DNSSEC parameters`,
   )
-  await Promise.all(transactions.map((tx) => tx.wait()))
 }
 
 func.tags = ['dnssec-oracle']
-func.dependencies = ['dnssec-algorithms', 'dnssec-digests']
+func.dependencies = [
+  'dnssec-algorithms',
+  'dnssec-digests',
+  'dnssec-nsec3-digests',
+]
 
 export default func

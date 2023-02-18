@@ -2,7 +2,7 @@ const namehash = require('eth-ens-namehash')
 const sha3 = require('web3-utils').sha3
 const PublicResolver = artifacts.require('./resolvers/PublicResolver.sol')
 const ReverseRegistrar = artifacts.require('./registry/ReverseRegistrar.sol')
-const ENS = artifacts.require('./registry/ENSRegistry.sol')
+const FNS = artifacts.require('./registry/Registry.sol')
 const NameWrapper = artifacts.require('DummyNameWrapper.sol')
 const { ethers } = require('hardhat')
 const {
@@ -22,18 +22,18 @@ function assertReverseClaimedEventEmitted(tx, addr, node) {
 contract('ReverseRegistrar', function(accounts) {
   let node, node2, node3, dummyOwnableReverseNode
 
-  let registrar, resolver, ens, nameWrapper, dummyOwnable, defaultResolver
+  let registrar, resolver, fns, nameWrapper, dummyOwnable, defaultResolver
 
   beforeEach(async () => {
     node = getReverseNode(accounts[0])
     node2 = getReverseNode(accounts[1])
     node3 = getReverseNode(accounts[2])
-    ens = await ENS.new()
+    fns = await FNS.new()
     nameWrapper = await NameWrapper.new()
 
-    registrar = await ReverseRegistrar.new(ens.address)
+    registrar = await ReverseRegistrar.new(fns.address)
     resolver = await PublicResolver.new(
-      ens.address,
+      fns.address,
       nameWrapper.address,
       '0x0000000000000000000000000000000000000000',
       registrar.address
@@ -44,13 +44,13 @@ contract('ReverseRegistrar', function(accounts) {
       PublicResolver.abi,
       ethers.provider
     )
-    dummyOwnable = await ReverseRegistrar.new(ens.address)
+    dummyOwnable = await ReverseRegistrar.new(fns.address)
     dummyOwnableReverseNode = getReverseNode(dummyOwnable.address)
 
-    await ens.setSubnodeOwner('0x0', sha3('reverse'), accounts[0], {
+    await fns.setSubnodeOwner('0x0', sha3('reverse'), accounts[0], {
       from: accounts[0],
     })
-    await ens.setSubnodeOwner(
+    await fns.setSubnodeOwner(
       namehash.hash('reverse'),
       sha3('addr'),
       registrar.address,
@@ -65,7 +65,7 @@ contract('ReverseRegistrar', function(accounts) {
   describe('claim', () => {
     it('allows an account to claim its address', async () => {
       await registrar.claim(accounts[1], { from: accounts[0] })
-      assert.equal(await ens.owner(node), accounts[1])
+      assert.equal(await fns.owner(node), accounts[1])
     })
 
     it('event ReverseClaimed is emitted', async () => {
@@ -84,7 +84,7 @@ contract('ReverseRegistrar', function(accounts) {
           from: accounts[0],
         }
       )
-      assert.equal(await ens.owner(node), accounts[1])
+      assert.equal(await fns.owner(node), accounts[1])
     })
 
     it('event ReverseClaimed is emitted', async () => {
@@ -108,7 +108,7 @@ contract('ReverseRegistrar', function(accounts) {
     })
 
     it('allows an authorised account to claim a different address', async () => {
-      await ens.setApprovalForAll(accounts[0], true, { from: accounts[1] })
+      await fns.setApprovalForAll(accounts[0], true, { from: accounts[1] })
       await registrar.claimForAddr(
         accounts[1],
         accounts[2],
@@ -117,7 +117,7 @@ contract('ReverseRegistrar', function(accounts) {
           from: accounts[0],
         }
       )
-      assert.equal(await ens.owner(node2), accounts[2])
+      assert.equal(await fns.owner(node2), accounts[2])
     })
 
     it('allows a controller to claim a different address', async () => {
@@ -130,7 +130,7 @@ contract('ReverseRegistrar', function(accounts) {
           from: accounts[0],
         }
       )
-      assert.equal(await ens.owner(node2), accounts[2])
+      assert.equal(await fns.owner(node2), accounts[2])
     })
 
     it('allows an owner() of a contract to claim the reverse node of that contract', async () => {
@@ -143,7 +143,7 @@ contract('ReverseRegistrar', function(accounts) {
           from: accounts[0],
         }
       )
-      assert.equal(await ens.owner(dummyOwnableReverseNode), accounts[0])
+      assert.equal(await fns.owner(dummyOwnableReverseNode), accounts[0])
     })
   })
 
@@ -152,8 +152,8 @@ contract('ReverseRegistrar', function(accounts) {
       await registrar.claimWithResolver(accounts[1], accounts[2], {
         from: accounts[0],
       })
-      assert.equal(await ens.owner(node), accounts[1])
-      assert.equal(await ens.resolver(node), accounts[2])
+      assert.equal(await fns.owner(node), accounts[1])
+      assert.equal(await fns.resolver(node), accounts[2])
     })
 
     it('event ReverseClaimed is emitted', async () => {
@@ -167,7 +167,7 @@ contract('ReverseRegistrar', function(accounts) {
   describe('setName', () => {
     it('sets name records', async () => {
       await registrar.setName('testname', { from: accounts[0] })
-      assert.equal(await ens.resolver(node), defaultResolver.address)
+      assert.equal(await fns.resolver(node), defaultResolver.address)
       assert.equal(await defaultResolver.name(node), 'testname')
     })
 
@@ -191,7 +191,7 @@ contract('ReverseRegistrar', function(accounts) {
           from: accounts[0],
         }
       )
-      assert.equal(await ens.resolver(node2), resolver.address)
+      assert.equal(await fns.resolver(node2), resolver.address)
       assert.equal(await resolver.name(node2), 'testname')
     })
 
@@ -232,12 +232,12 @@ contract('ReverseRegistrar', function(accounts) {
           from: accounts[0],
         }
       )
-      assert.equal(await ens.resolver(node), resolver.address)
+      assert.equal(await fns.resolver(node), resolver.address)
       assert.equal(await resolver.name(node), 'testname')
     })
 
     it('allows name to be set for an address if the sender is authorised', async () => {
-      ens.setApprovalForAll(accounts[1], true, { from: accounts[0] })
+      fns.setApprovalForAll(accounts[1], true, { from: accounts[0] })
       await registrar.setNameForAddr(
         accounts[0],
         accounts[0],
@@ -247,7 +247,7 @@ contract('ReverseRegistrar', function(accounts) {
           from: accounts[1],
         }
       )
-      assert.equal(await ens.resolver(node), resolver.address)
+      assert.equal(await fns.resolver(node), resolver.address)
       assert.equal(await resolver.name(node), 'testname')
     })
 
@@ -256,15 +256,15 @@ contract('ReverseRegistrar', function(accounts) {
         dummyOwnable.address,
         accounts[0],
         resolver.address,
-        'dummyownable.eth',
+        'dummyownable.fil',
         {
           from: accounts[0],
         }
       )
-      assert.equal(await ens.owner(dummyOwnableReverseNode), accounts[0])
+      assert.equal(await fns.owner(dummyOwnableReverseNode), accounts[0])
       assert.equal(
         await resolver.name(dummyOwnableReverseNode),
-        'dummyownable.eth'
+        'dummyownable.fil'
       )
     })
   })

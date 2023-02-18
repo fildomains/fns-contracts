@@ -9,13 +9,13 @@ contract('TLDPublicSuffixList', function(accounts) {
   });
 
   it('treats all TLDs as public suffixes', async function() {
-    assert.equal(await suffixList.isPublicSuffix(utils.hexEncodeName('eth')), true);
+    assert.equal(await suffixList.isPublicSuffix(utils.hexEncodeName('fil')), true);
     assert.equal(await suffixList.isPublicSuffix(utils.hexEncodeName('com')), true);    
   });
 
   it('treats non-TLDs as non-public suffixes', async function() {
     assert.equal(await suffixList.isPublicSuffix(utils.hexEncodeName('')), false);
-    assert.equal(await suffixList.isPublicSuffix(utils.hexEncodeName('foo.eth')), false);
-    assert.equal(await suffixList.isPublicSuffix(utils.hexEncodeName('a.b.foo.eth')), false);
+    assert.equal(await suffixList.isPublicSuffix(utils.hexEncodeName('foo.fil')), false);
+    assert.equal(await suffixList.isPublicSuffix(utils.hexEncodeName('a.b.foo.fil')), false);
   });
 });

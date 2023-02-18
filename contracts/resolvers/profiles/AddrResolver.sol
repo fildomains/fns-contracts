@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity ^0.8.17;
 
 import "../ResolverBase.sol";
 import "./IAddrResolver.sol";
@@ -15,8 +15,8 @@ abstract contract AddrResolver is
     mapping(uint64 => mapping(bytes32 => mapping(uint256 => bytes))) versionable_addresses;
 
     /**
-     * Sets the address associated with an ENS node.
-     * May only be called by the owner of that node in the ENS registry.
+     * Sets the address associated with an FNS node.
+     * May only be called by the owner of that node in the FNS registry.
      * @param node The node to update.
      * @param a The address to set.
      */
@@ -29,8 +29,8 @@ abstract contract AddrResolver is
     }
 
     /**
-     * Returns the address associated with an ENS node.
-     * @param node The ENS node to query.
+     * Returns the address associated with an FNS node.
+     * @param node The FNS node to query.
      * @return The associated address.
      */
     function addr(bytes32 node)

@@ -7,16 +7,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy } = deployments
   const { deployer } = await getNamedAccounts()
 
-  const registry = await ethers.getContract('ENSRegistry')
-  const batchGatewayURLs = JSON.parse(process.env.BATCH_GATEWAY_URLS || '[]')
-
-  if (batchGatewayURLs.length === 0) {
-    throw new Error('UniversalResolver: No batch gateway URLs provided')
-  }
+  const registry = await ethers.getContract('Registry')
 
   await deploy('UniversalResolver', {
     from: deployer,
-    args: [registry.address, batchGatewayURLs],
+    args: [registry.address, [
+      'https://universal.fildomains.com',
+    ]],
     log: true,
   })
 }

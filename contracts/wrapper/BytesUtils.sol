@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ~0.8.17;
 
 library BytesUtils {
@@ -21,7 +21,7 @@ library BytesUtils {
     }
 
     /**
-     * @dev Returns the ENS namehash of a DNS-encoded name.
+     * @dev Returns the FNS namehash of a DNS-encoded name.
      * @param self The DNS-encoded name to hash.
      * @param offset The offset at which to start hashing.
      * @return The namehash of the name.

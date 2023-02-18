@@ -5,7 +5,7 @@ import {ERC165} from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import {LowLevelCallUtils} from "./LowLevelCallUtils.sol";
-import {ENS} from "../registry/ENS.sol";
+import {FNS} from "../registry/FNS.sol";
 import {IExtendedResolver} from "../resolvers/profiles/IExtendedResolver.sol";
 import {Resolver, INameResolver, IAddrResolver} from "../resolvers/Resolver.sol";
 import {NameEncoder} from "./NameEncoder.sol";
@@ -49,7 +49,7 @@ interface BatchGateway {
 
 /**
  * The Universal Resolver is a contract that handles the work of resolving a name entirely onchain,
- * making it possible to make a single smart contract call to resolve an ENS name.
+ * making it possible to make a single smart contract call to resolve an FNS name.
  */
 contract UniversalResolver is ERC165, Ownable {
     using Address for address;
@@ -57,10 +57,10 @@ contract UniversalResolver is ERC165, Ownable {
     using BytesUtils for bytes;
 
     string[] public batchGatewayURLs;
-    ENS public immutable registry;
+    FNS public immutable registry;
 
     constructor(address _registry, string[] memory _urls) {
-        registry = ENS(_registry);
+        registry = FNS(_registry);
         batchGatewayURLs = _urls;
     }
 
@@ -69,7 +69,7 @@ contract UniversalResolver is ERC165, Ownable {
     }
 
     /**
-     * @dev Performs ENS name resolution for the supplied name and resolution data.
+     * @dev Performs FNS name resolution for the supplied name and resolution data.
      * @param name The name to resolve, in normalised and DNS-encoded form.
      * @param data The resolution data, as specified in ENSIP-10.
      * @return The result of resolving the name.
@@ -189,7 +189,7 @@ contract UniversalResolver is ERC165, Ownable {
     }
 
     /**
-     * @dev Performs ENS name reverse resolution for the supplied reverse name.
+     * @dev Performs FNS name reverse resolution for the supplied reverse name.
      * @param reverseName The reverse name to resolve, in normalised and DNS-encoded form. e.g. b6E040C9ECAaE172a89bD561c5F73e1C48d28cd9.addr.reverse
      * @return The resolved name, the resolved address, the reverse resolver address, and the resolver address.
      */

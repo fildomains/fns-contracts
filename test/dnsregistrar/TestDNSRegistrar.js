@@ -1,4 +1,4 @@
-const ENSRegistry = artifacts.require('./ENSRegistry.sol')
+const Registry = artifacts.require('./Registry.sol')
 const Root = artifacts.require('/Root.sol')
 const SimplePublixSuffixList = artifacts.require('./SimplePublicSuffixList.sol')
 const DNSRegistrarContract = artifacts.require('./DNSRegistrar.sol')
@@ -14,7 +14,7 @@ const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 contract('DNSRegistrar', function(accounts) {
   var registrar = null
-  var ens = null
+  var fns = null
   var root = null
   var dnssec = null
   var suffixes = null
@@ -44,7 +44,7 @@ contract('DNSRegistrar', function(accounts) {
     },
     rrs: [
       {
-        name: `_ens.${name}`,
+        name: `_fns.${name}`,
         type: 'TXT',
         class: 'IN',
         ttl: 3600,
@@ -54,10 +54,10 @@ contract('DNSRegistrar', function(accounts) {
   });
   
   beforeEach(async function() {
-    ens = await ENSRegistry.new()
+    fns = await Registry.new()
 
-    root = await Root.new(ens.address)
-    await ens.setOwner('0x0', root.address)
+    root = await Root.new(fns.address)
+    await fns.setOwner('0x0', root.address)
 
     dnssec = await DNSSECImpl.deployed()
 
@@ -70,14 +70,14 @@ contract('DNSRegistrar', function(accounts) {
     registrar = await DNSRegistrarContract.new(
       dnssec.address,
       suffixes.address,
-      ens.address
+      fns.address
     )
     await root.setController(registrar.address, true)
   })
 
-  it('allows anyone to claim on behalf of the owner of an ENS name', async function() {
+  it('allows anyone to claim on behalf of the owner of an FNS name', async function() {
     assert.equal(await registrar.oracle(), dnssec.address)
-    assert.equal(await registrar.ens(), ens.address)
+    assert.equal(await registrar.fns(), fns.address)
 
     const proof = [
       hexEncodeSignedSet(rootKeys(expiration, inception)),
@@ -90,7 +90,7 @@ contract('DNSRegistrar', function(accounts) {
       {from: accounts[1]}
     )
 
-    assert.equal(await ens.owner(namehash.hash('foo.test')), accounts[0])
+    assert.equal(await fns.owner(namehash.hash('foo.test')), accounts[0])
   })
 
   it('allows claims on names that are not TLDs', async function() {
@@ -104,7 +104,7 @@ contract('DNSRegistrar', function(accounts) {
       proof
     )
 
-    assert.equal(await ens.owner(namehash.hash('foo.co.nz')), accounts[0])
+    assert.equal(await fns.owner(namehash.hash('foo.co.nz')), accounts[0])
   })
 
   it('allows anyone to update a DNSSEC referenced name', async function() {
@@ -125,7 +125,7 @@ contract('DNSRegistrar', function(accounts) {
       proof
     )
 
-    assert.equal(await ens.owner(namehash.hash('foo.test')), accounts[1])
+    assert.equal(await fns.owner(namehash.hash('foo.test')), accounts[1])
   })
 
   it('rejects proofs with earlier inceptions', async function() {
@@ -176,8 +176,8 @@ contract('DNSRegistrar', function(accounts) {
       ZERO_ADDRESS
     )
 
-    assert.equal(await ens.owner(namehash.hash('foo.test')), accounts[0])
-    assert.equal(await ens.resolver(namehash.hash('foo.test')), accounts[1])
+    assert.equal(await fns.owner(namehash.hash('foo.test')), accounts[0])
+    assert.equal(await fns.resolver(namehash.hash('foo.test')), accounts[1])
   })
 
   it('does not allow anyone else to claim and set a resolver', async () => {
@@ -198,7 +198,7 @@ contract('DNSRegistrar', function(accounts) {
 
   it('sets an address on the resolver if provided', async () => {
     var resolver = await PublicResolver.new(
-      ens.address,
+      fns.address,
       ZERO_ADDRESS,
       ZERO_ADDRESS,
       ZERO_ADDRESS

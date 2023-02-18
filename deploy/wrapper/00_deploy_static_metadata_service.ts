@@ -7,14 +7,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer } = await getNamedAccounts()
 
   let metadataHost =
-    process.env.METADATA_HOST || 'ens-metadata-service.appspot.com'
+    process.env.METADATA_HOST || 'https://metadata.fnsdomains.com'
 
   if (network.name === 'localhost') {
     metadataHost = 'http://localhost:8080'
   }
 
-  const metadataUrl = `${metadataHost}/name/0x{id}`
+  const metadataUrl = `${metadataHost}/${network.name}/`
 
+  console.log(`Deploying StaticMetadataService metadataUrl: ${metadataUrl}`)
   await deploy('StaticMetadataService', {
     from: deployer,
     args: [metadataUrl],

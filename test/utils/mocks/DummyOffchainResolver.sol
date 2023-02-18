@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "../../../contracts/resolvers/profiles/IExtendedResolver.sol";
@@ -50,8 +50,18 @@ contract DummyOffchainResolver is IExtendedResolver, ERC165 {
             "Response data error"
         );
         if (bytes4(extraData) == bytes4(keccak256("name(bytes32)"))) {
-            return abi.encode("offchain.test.eth");
+            return abi.encode("offchain.test.fil");
         }
         return abi.encode(address(this));
+    }
+
+    function reverseCallback(
+        bytes calldata, /* name */
+        bytes calldata data
+    ) external view returns (bytes memory, address) {
+        string[] memory urls = new string[](1);
+        urls[0] = "https://example.com/";
+
+        return (abi.encode(address(this), urls, data, DummyOffchainResolver.reverseCallback.selector, data), address (this));
     }
 }

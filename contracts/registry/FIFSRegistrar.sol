@@ -1,16 +1,17 @@
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
-import "./ENS.sol";
+import "./FNS.sol";
 
 /**
  * A registrar that allocates subdomains to the first person to claim them.
  */
 contract FIFSRegistrar {
-    ENS ens;
+    FNS fns;
     bytes32 rootNode;
 
     modifier only_owner(bytes32 label) {
-        address currentOwner = ens.owner(
+        address currentOwner = fns.owner(
             keccak256(abi.encodePacked(rootNode, label))
         );
         require(currentOwner == address(0x0) || currentOwner == msg.sender);
@@ -19,11 +20,11 @@ contract FIFSRegistrar {
 
     /**
      * Constructor.
-     * @param ensAddr The address of the ENS registry.
+     * @param ensAddr The address of the FNS registry.
      * @param node The node that this registrar administers.
      */
-    constructor(ENS ensAddr, bytes32 node) public {
-        ens = ensAddr;
+    constructor(FNS ensAddr, bytes32 node) public {
+        fns = ensAddr;
         rootNode = node;
     }
 
@@ -33,6 +34,6 @@ contract FIFSRegistrar {
      * @param owner The address of the new owner.
      */
     function register(bytes32 label, address owner) public only_owner(label) {
-        ens.setSubnodeOwner(rootNode, label, owner);
+        fns.setSubnodeOwner(rootNode, label, owner);
     }
 }

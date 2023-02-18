@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity ^0.8.17;
 
 import "../ResolverBase.sol";
 import "./IContentHashResolver.sol";
@@ -8,8 +8,8 @@ abstract contract ContentHashResolver is IContentHashResolver, ResolverBase {
     mapping(uint64 => mapping(bytes32 => bytes)) versionable_hashes;
 
     /**
-     * Sets the contenthash associated with an ENS node.
-     * May only be called by the owner of that node in the ENS registry.
+     * Sets the contenthash associated with an FNS node.
+     * May only be called by the owner of that node in the FNS registry.
      * @param node The node to update.
      * @param hash The contenthash to set
      */
@@ -23,8 +23,8 @@ abstract contract ContentHashResolver is IContentHashResolver, ResolverBase {
     }
 
     /**
-     * Returns the contenthash associated with an ENS node.
-     * @param node The ENS node to query.
+     * Returns the contenthash associated with an FNS node.
+     * @param node The FNS node to query.
      * @return The associated contenthash.
      */
     function contenthash(bytes32 node)

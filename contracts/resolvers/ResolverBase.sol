@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "./profiles/IVersionableResolver.sol";
@@ -15,8 +15,8 @@ abstract contract ResolverBase is ERC165, IVersionableResolver {
     }
 
     /**
-     * Increments the record version associated with an ENS node.
-     * May only be called by the owner of that node in the ENS registry.
+     * Increments the record version associated with an FNS node.
+     * May only be called by the owner of that node in the FNS registry.
      * @param node The node to update.
      */
     function clearRecords(bytes32 node) public virtual authorised(node) {

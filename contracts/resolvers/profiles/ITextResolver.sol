@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.8.4;
+pragma solidity ^0.8.17;
 
 interface ITextResolver {
     event TextChanged(
@@ -10,8 +10,8 @@ interface ITextResolver {
     );
 
     /**
-     * Returns the text data associated with an ENS node and key.
-     * @param node The ENS node to query.
+     * Returns the text data associated with an FNS node and key.
+     * @param node The FNS node to query.
      * @param key The text data key to query.
      * @return The associated text data.
      */

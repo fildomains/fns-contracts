@@ -1,13 +1,13 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.4;
+pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import "@ensdomains/buffer/contracts/Buffer.sol";
 import "../dnssec-oracle/BytesUtils.sol";
 import "../dnssec-oracle/DNSSEC.sol";
 import "../dnssec-oracle/RRUtils.sol";
-import "../registry/ENSRegistry.sol";
+import "../registry/Registry.sol";
 import "../root/Root.sol";
 import "../resolvers/profiles/AddrResolver.sol";
 import "./DNSClaimChecker.sol";
@@ -15,8 +15,8 @@ import "./PublicSuffixList.sol";
 import "./IDNSRegistrar.sol";
 
 /**
- * @dev An ENS registrar that allows the owner of a DNS name to claim the
- *      corresponding name in ENS.
+ * @dev An FNS registrar that allows the owner of a DNS name to claim the
+ *      corresponding name in FNS.
  */
 // TODO: Record inception time of any claimed name, so old proofs can't be used to revert changes to a name.
 contract DNSRegistrar is IDNSRegistrar, IERC165 {
@@ -24,7 +24,7 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
     using Buffer for Buffer.buffer;
     using RRUtils for *;
 
-    ENS public immutable ens;
+    FNS public immutable fns;
     DNSSEC public immutable oracle;
     PublicSuffixList public suffixes;
     // A mapping of the most recent signatures seen for each claimed domain.
@@ -52,20 +52,20 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
     constructor(
         DNSSEC _dnssec,
         PublicSuffixList _suffixes,
-        ENS _ens
+        FNS _fns
     ) {
         oracle = _dnssec;
         emit NewOracle(address(oracle));
         suffixes = _suffixes;
         emit NewPublicSuffixList(address(suffixes));
-        ens = _ens;
+        fns = _fns;
     }
 
     /**
-     * @dev This contract's owner-only functions can be invoked by the owner of the ENS root.
+     * @dev This contract's owner-only functions can be invoked by the owner of the FNS root.
      */
     modifier onlyOwner() {
-        Root root = Root(ens.owner(bytes32(0)));
+        Root root = Root(fns.owner(bytes32(0)));
         address owner = root.owner();
         require(msg.sender == owner);
         _;
@@ -89,7 +89,7 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
             name,
             input
         );
-        ens.setSubnodeOwner(rootNode, labelHash, addr);
+        fns.setSubnodeOwner(rootNode, labelHash, addr);
     }
 
     function proveAndClaimWithResolver(
@@ -112,7 +112,7 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
                 "Cannot set addr if resolver is not set"
             );
             // Set ourselves as the owner so we can set a record on the resolver
-            ens.setSubnodeRecord(
+            fns.setSubnodeRecord(
                 rootNode,
                 labelHash,
                 address(this),
@@ -123,9 +123,9 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
             // Set the resolver record
             AddrResolver(resolver).setAddr(node, addr);
             // Transfer the record to the owner
-            ens.setOwner(node, owner);
+            fns.setOwner(node, owner);
         } else {
-            ens.setSubnodeRecord(rootNode, labelHash, owner, resolver, 0);
+            fns.setSubnodeRecord(rootNode, labelHash, owner, resolver, 0);
         }
     }
 
@@ -190,17 +190,17 @@ contract DNSRegistrar is IDNSRegistrar, IERC165 {
         bytes32 parentNode = enableNode(domain, offset + len + 1);
         bytes32 label = domain.keccak(offset + 1, len);
         node = keccak256(abi.encodePacked(parentNode, label));
-        address owner = ens.owner(node);
+        address owner = fns.owner(node);
         require(
             owner == address(0) || owner == address(this),
             "Cannot enable a name owned by someone else"
         );
         if (owner != address(this)) {
             if (parentNode == bytes32(0)) {
-                Root root = Root(ens.owner(bytes32(0)));
+                Root root = Root(fns.owner(bytes32(0)));
                 root.setSubnodeOwner(label, address(this));
             } else {
-                ens.setSubnodeOwner(parentNode, label, address(this));
+                fns.setSubnodeOwner(parentNode, label, address(this));
             }
         }
         return node;

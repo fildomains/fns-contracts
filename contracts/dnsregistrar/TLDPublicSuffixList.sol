@@ -1,4 +1,5 @@
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
 import "../dnssec-oracle/BytesUtils.sol";
 import "./PublicSuffixList.sol";

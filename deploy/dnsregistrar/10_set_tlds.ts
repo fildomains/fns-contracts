@@ -6,6 +6,9 @@ const tld_map = {
   mainnet: ['xyz'],
   ropsten: ['xyz'],
   localhost: ['xyz'],
+  filecoin: ['xyz'],
+  hyperspace: ['xyz'],
+  hardhat: ['xyz'],
   goerli: [
     'exposed',
     'target',
@@ -1293,7 +1296,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   let transactions: any[] = []
   if (network.tags.use_root) {
     const root = await ethers.getContract('Root', signer)
-    const registry = await ethers.getContract('ENSRegistry', signer)
+    const registry = await ethers.getContract('Registry', signer)
     transactions = await setTLDsOnRoot(
       owner,
       root,
@@ -1302,7 +1305,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       tld_map[network.name as keyof typeof tld_map],
     )
   } else {
-    const registry = await ethers.getContract('ENSRegistry', signer)
+    const registry = await ethers.getContract('Registry', signer)
     transactions = await setTLDsOnRegistry(
       owner,
       registry,
@@ -1315,7 +1318,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log(
       `Waiting on ${transactions.length} transactions setting DNS TLDs`,
     )
-    await Promise.all(transactions.map((tx) => tx.wait()))
+
+    for(let i = 0; i < transactions.length; i++){
+      await transactions[i].wait();
+    }
   }
 }
 

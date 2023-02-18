@@ -36,43 +36,50 @@ if (process.env.DEPLOYER_KEY) {
 export const archivedDeploymentPath = './deployments/archive'
 
 const config: HardhatUserConfig = {
+  defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
-      saveDeployments: false,
-      tags: ['test', 'legacy', 'use_root'],
+      saveDeployments: true,
+      tags: ['test', 'use_root'],
       allowUnlimitedContractSize: false,
     },
     localhost: {
-      url: 'http://127.0.0.1:8545',
-      saveDeployments: false,
-      tags: ['test', 'legacy', 'use_root'],
-    },
-    rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      tags: ['test', 'legacy', 'use_root'],
-      chainId: 4,
+      url: 'http://localhost:8545',
+      saveDeployments: true,
+      tags: ['test', 'use_root'],
       accounts: real_accounts,
-    },
-    ropsten: {
-      url: `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      tags: ['test', 'legacy', 'use_root'],
-      chainId: 3,
-      accounts: real_accounts,
+      timeout: 4000000,
     },
     goerli: {
-      url: `https://goerli.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      tags: ['test', 'legacy', 'use_root'],
+      url: `https://goerli.infura.io/v3/${process.env.INFURA_ID}`,
+      tags: ['test', 'use_root'],
       chainId: 5,
       accounts: real_accounts,
     },
     mainnet: {
-      url: `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`,
-      tags: ['legacy', 'use_root'],
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
+      tags: ['use_root'],
       chainId: 1,
       accounts: real_accounts,
     },
+    filecoin: {
+      url: `https://api.node.glif.io`,
+      tags: ['use_root'],
+      chainId: 314,
+      saveDeployments: true,
+      accounts: real_accounts,
+    },
+    hyperspace: {
+      url: `https://api.hyperspace.node.glif.io/rpc/v1`,
+      tags: ['use_root'],
+      chainId: 3141,
+      saveDeployments: true,
+      accounts: real_accounts,
+    },
   },
-  mocha: {},
+  mocha: {
+    timeout: 4000000
+  },
   solidity: {
     compilers: [
       {
@@ -109,6 +116,9 @@ const config: HardhatUserConfig = {
     },
     owner: {
       default: 1,
+    },
+    owner2: {
+      default: 2,
     },
   },
   external: {

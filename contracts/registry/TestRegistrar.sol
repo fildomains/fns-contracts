@@ -1,6 +1,7 @@
-pragma solidity >=0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
-import "./ENS.sol";
+import "./FNS.sol";
 
 /**
  * A registrar that allocates subdomains to the first person to claim them, but
@@ -9,17 +10,17 @@ import "./ENS.sol";
 contract TestRegistrar {
     uint256 constant registrationPeriod = 4 weeks;
 
-    ENS public immutable ens;
+    FNS public immutable fns;
     bytes32 public immutable rootNode;
     mapping(bytes32 => uint256) public expiryTimes;
 
     /**
      * Constructor.
-     * @param ensAddr The address of the ENS registry.
+     * @param ensAddr The address of the FNS registry.
      * @param node The node that this registrar administers.
      */
-    constructor(ENS ensAddr, bytes32 node) {
-        ens = ensAddr;
+    constructor(FNS ensAddr, bytes32 node) {
+        fns = ensAddr;
         rootNode = node;
     }
 
@@ -32,6 +33,6 @@ contract TestRegistrar {
         require(expiryTimes[label] < block.timestamp);
 
         expiryTimes[label] = block.timestamp + registrationPeriod;
-        ens.setSubnodeOwner(rootNode, label, owner);
+        fns.setSubnodeOwner(rootNode, label, owner);
     }
 }

@@ -1,7 +1,7 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.8.17 <0.9.0;
 
-import "../registry/ENS.sol";
+import "../registry/FNS.sol";
 import "./profiles/ABIResolver.sol";
 import "./profiles/AddrResolver.sol";
 import "./profiles/ContentHashResolver.sol";
@@ -31,9 +31,9 @@ contract PublicResolver is
     PubkeyResolver,
     TextResolver
 {
-    ENS immutable ens;
+    FNS immutable fns;
     INameWrapper immutable nameWrapper;
-    address immutable trustedETHController;
+    address immutable trustedController;
     address immutable trustedReverseRegistrar;
 
     /**
@@ -68,14 +68,14 @@ contract PublicResolver is
     );
 
     constructor(
-        ENS _ens,
+        FNS _fns,
         INameWrapper wrapperAddress,
-        address _trustedETHController,
+        address _trustedController,
         address _trustedReverseRegistrar
     ) {
-        ens = _ens;
+        fns = _fns;
         nameWrapper = wrapperAddress;
-        trustedETHController = _trustedETHController;
+        trustedController = _trustedController;
         trustedReverseRegistrar = _trustedReverseRegistrar;
     }
 
@@ -130,12 +130,12 @@ contract PublicResolver is
 
     function isAuthorised(bytes32 node) internal view override returns (bool) {
         if (
-            msg.sender == trustedETHController ||
+            msg.sender == trustedController ||
             msg.sender == trustedReverseRegistrar
         ) {
             return true;
         }
-        address owner = ens.owner(node);
+        address owner = fns.owner(node);
         if (owner == address(nameWrapper)) {
             owner = nameWrapper.ownerOf(uint256(node));
         }

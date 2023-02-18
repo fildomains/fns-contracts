@@ -1,10 +1,9 @@
-//SPDX-License-Identifier: MIT
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
 import "../dnssec-oracle/DNSSEC.sol";
 import "../dnssec-oracle/BytesUtils.sol";
 import "../dnssec-oracle/RRUtils.sol";
-import "@ensdomains/buffer/contracts/Buffer.sol";
 
 library DNSClaimChecker {
     using BytesUtils for bytes;
@@ -19,7 +18,7 @@ library DNSClaimChecker {
         pure
         returns (address, bool)
     {
-        // Add "_ens." to the front of the name.
+        // Add "_fns." to the front of the name.
         Buffer.buffer memory buf;
         buf.init(name.length + 5);
         buf.append("\x04_ens");

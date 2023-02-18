@@ -1,6 +1,7 @@
-pragma solidity ^0.8.4;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
 
-import "../registry/ENS.sol";
+import "../registry/FNS.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Controllable.sol";
 
@@ -12,11 +13,11 @@ contract Root is Ownable, Controllable {
 
     event TLDLocked(bytes32 indexed label);
 
-    ENS public ens;
+    FNS public fns;
     mapping(bytes32 => bool) public locked;
 
-    constructor(ENS _ens) public {
-        ens = _ens;
+    constructor(FNS _fns) public {
+        fns = _fns;
     }
 
     function setSubnodeOwner(bytes32 label, address owner)
@@ -24,11 +25,11 @@ contract Root is Ownable, Controllable {
         onlyController
     {
         require(!locked[label]);
-        ens.setSubnodeOwner(ROOT_NODE, label, owner);
+        fns.setSubnodeOwner(ROOT_NODE, label, owner);
     }
 
     function setResolver(address resolver) external onlyOwner {
-        ens.setResolver(ROOT_NODE, resolver);
+        fns.setResolver(ROOT_NODE, resolver);
     }
 
     function lock(bytes32 label) external onlyOwner {

@@ -14,7 +14,7 @@ web3.currentProvider.send = util.promisify(web3.currentProvider.send)
 
 const test_rrset_timestamp = 1552658805;
 
-// When the real test start failing due to ttl expiration, you can generate the new test dataset at https://dnssec.ens.domains/?domain=ethlab.xyz&mode=advanced
+// When the real test start failing due to ttl expiration, you can generate the new test dataset at https://dnssec.fns.domains/?domain=ethlab.xyz&mode=advanced
 const test_rrsets = [
   // .	55430	IN	RRSIG	DNSKEY 8 0 172800 20190402000000 20190312000000 20326 . A76nZ8WVsD+pLAKJh9ujKxxRDWfJf8SxayOkq3Gq9TX4BStpQM1e/KuX8am4FrVRCGQvLlhiYFNqm+PtevGGJAO0lTFLSiIuavknlkSiI3HMkrMDqSV+YlIQPk1C720khNpWy70WjjNvkq4sBU1GTkVPeFkM3gQI53pCHW+VobCPXZz70J+PnSOq7SmjrwXgU8E9iSXkI3yfhGIup2c54Sf9w0Bw10opvxXMT+1ALgWY1TnV1/gRixIUZp1K86iR8VeX9K/4UTqEa5bYux+aeIcQ2/4Qqyo3Ocb2RrbUvDNzU2lB4b1r/oHqsd6C0SiGmdo0A8R44djKMHVaD/JmLg==
   // .	55430	IN	DNSKEY	256 3 8 AwEAAcH+axCdUOsTc9o+jmyVq5rsGTh1EcatSumPqEfsPBT+whyj0/UhD7cWeixV9Wqzj/cnqs8iWELqhdzGX41ZtaNQUfWNfOriASnWmX2D9m/EunplHu8nMSlDnDcT7+llE9tjk5HI1Sr7d9N16ZTIrbVALf65VB2ABbBG39dyAb7tz21PICJbSp2cd77UF7NFqEVkqohl/LkDw+7Apalmp0qAQT1Mgwi2cVxZMKUiciA6EqS+KNajf0A6olO2oEhZnGGY6b1LTg34/YfHdiIIZQqAfqbieruCGHRiSscC2ZE7iNreL/76f4JyIEUNkt6bQA29JsegxorLzQkpF7NKqZc=
@@ -63,10 +63,10 @@ const test_rrsets = [
     '0x0c8a2e621ab3ab1c4dedf01037c558092917285ceebf53fdeb8b9cb436887e4ffb05b09e3c9decde8986cb03731f4ffe573c1adf8015d2d8483a98662c5a9243',
   ],
 
-  // _ens.ethlab.xyz.	21599	IN	RRSIG	TXT 8 3 86400 20340214222653 20190305212653 42999 ethlab.xyz. cK9JLb6gBKY7oJi2E+94a0Eii8k4nirIKgginKID3FD7B0lVn6I0499nKzLVCWQtFc3Hnte9JaUrz4GvP3mBTA==
-  // _ens.ethlab.xyz.	21599	IN	TXT	"a=0xfdb33f8ac7ce72d7d4795dd8610e323b4c122fbb"
+  // _fns.ethlab.xyz.	21599	IN	RRSIG	TXT 8 3 86400 20340214222653 20190305212653 42999 ethlab.xyz. cK9JLb6gBKY7oJi2E+94a0Eii8k4nirIKgginKID3FD7B0lVn6I0499nKzLVCWQtFc3Hnte9JaUrz4GvP3mBTA==
+  // _fns.ethlab.xyz.	21599	IN	TXT	"a=0xfdb33f8ac7ce72d7d4795dd8610e323b4c122fbb"
   [
-    web3.utils.toHex('_ens.ethlab.xyz.'),
+    web3.utils.toHex('_fns.ethlab.xyz.'),
     '0x0010080300015180789d35ad5c7ee99da7f7066574686c61620378797a00045f656e73066574686c61620378797a000010000100015180002d2c613d307866646233336638616337636537326437643437393564643836313065333233623463313232666262',
     '0x70af492dbea004a63ba098b613ef786b41228bc9389e2ac82a08229ca203dc50fb0749559fa234e3df672b32d509642d15cdc79ed7bd25a52bcf81af3f79814c',
   ],

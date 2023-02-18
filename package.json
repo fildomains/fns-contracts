@@ -1,12 +1,14 @@
 {
-  "name": "@ensdomains/ens-contracts",
-  "version": "0.0.13",
-  "description": "ENS contracts",
+  "name": "@fnsdomains/fns-contracts",
+  "version": "0.0.9",
+  "description": "FNS contracts",
   "scripts": {
-    "test": "hardhat test",
+    "test": "hardhat test --network hardhat",
     "test:local": "hardhat --network localhost test",
+    "deploy": "hardhat deploy --network localhost --reset",
+    "node": "hardhat node --hostname 0.0.0.0",
     "lint": "hardhat check",
-    "build": "rm -rf ./build/deploy ./build/hardhat.config.js && hardhat compile && tsc",
+    "build": "shx rm -rf ./build/deploy ./build/hardhat.config.js && hardhat compile && tsc",
     "prepublishOnly": "yarn build",
     "pub": "yarn publish --access public"
   },
@@ -14,11 +16,13 @@
     "build",
     "contracts/**/*.sol",
     "artifacts",
-    "deployments/mainnet/*.json",
+    "deployments/filecoin/*.json",
+    "deployments/hyperspace/*.json",
     "deployments/archive/**/*.json"
   ],
   "main": "index.js",
   "devDependencies": {
+    "@ancjf/logs": "^1.0.3",
     "@ensdomains/dnsprovejs": "^0.3.7",
     "@ensdomains/test-utils": "^1.3.0",
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.13",
@@ -34,8 +38,8 @@
     "elliptic-solidity": "^1.0.0",
     "envfile": "^6.17.0",
     "ethereum-waffle": "^3.3.0",
-    "ethers": "^5.6.1",
-    "hardhat": "^2.9.9",
+    "ethers": "^5.7.2",
+    "hardhat": "^2.12.4",
     "hardhat-abi-exporter": "^2.9.0",
     "hardhat-contract-sizer": "^2.6.1",
     "hardhat-deploy": "^0.11.10",
@@ -43,6 +47,7 @@
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.24",
     "rfc4648": "^1.5.0",
+    "shx": "^0.3.4",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
@@ -51,10 +56,11 @@
     "js-sha3": "0.8.0"
   },
   "dependencies": {
-    "@ensdomains/buffer": "^0.0.13",
-    "@ensdomains/solsha1": "0.0.3",
-    "@openzeppelin/contracts": "^4.1.0",
-    "dns-packet": "^5.3.0"
+    "@ensdomains/ensjs": "3.0.0-alpha.45",
+    "@ensdomains/eth-ens-namehash": "^2.0.15",
+    "@openzeppelin/contracts": "4.8.0",
+    "dns-packet": "^5.3.0",
+    "eth-ens-namehash": "^2.0.8"
   },
   "directories": {
     "test": "test"

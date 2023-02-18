@@ -1,22 +1,22 @@
-//SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ~0.8.17;
 
 import {BytesUtils} from "../BytesUtils.sol";
 import {INameWrapper} from "../INameWrapper.sol";
-import {ENS} from "../../registry/ENS.sol";
+import {FNS} from "../../registry/FNS.sol";
 import {IERC1155Receiver} from "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 
 contract NameGriefer is IERC1155Receiver {
     using BytesUtils for *;
 
-    ENS public immutable ens;
+    FNS public immutable fns;
     INameWrapper public immutable wrapper;
 
     constructor(INameWrapper _wrapper) {
         wrapper = _wrapper;
-        ENS _ens = _wrapper.ens();
-        ens = _ens;
-        _ens.setApprovalForAll(address(_wrapper), true);
+        FNS _fns = _wrapper.fns();
+        fns = _fns;
+        _fns.setApprovalForAll(address(_wrapper), true);
     }
 
     function destroy(bytes calldata name) public {
