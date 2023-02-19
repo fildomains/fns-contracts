@@ -1,9 +1,3 @@
-# ENS
-
-[![Build Status](https://travis-ci.org/ensdomains/ens-contracts.svg?branch=master)](https://travis-ci.org/ensdomains/ens-contracts)
-
-For documentation of the ENS system, see [docs.ens.domains](https://docs.ens.domains/).
-
 ## npm package
 
 This repo doubles as an npm package with the compiled JSON contracts
@@ -13,10 +7,9 @@ import {
   BaseRegistrar,
   BaseRegistrarImplementation,
   BulkRenewal,
-  ENS,
-  ENSRegistry,
-  ENSRegistryWithFallback,
-  ETHRegistrarController,
+  FNS,
+  Registry,
+  RegistrarController,
   FIFSRegistrar,
   LinearPremiumPriceOracle,
   PriceOracle,
@@ -25,53 +18,48 @@ import {
   ReverseRegistrar,
   StablePriceOracle,
   TestRegistrar
-} from '@ensdomains/ens-contracts'
+} from '@fnsdomains/fns-contracts'
 ```
 
 ## Importing from solidity
 
 ```
 // Registry
-import '@ensdomains/ens-contracts/contracts/registry/ENS.sol';
-import '@ensdomains/ens-contracts/contracts/registry/ENSRegistry.sol';
-import '@ensdomains/ens-contracts/contracts/registry/ENSRegistryWithFallback.sol';
-import '@ensdomains/ens-contracts/contracts/registry/ReverseRegistrar.sol';
-import '@ensdomains/ens-contracts/contracts/registry/TestRegistrar.sol';
-// EthRegistrar
-import '@ensdomains/ens-contracts/contracts/ethregistrar/BaseRegistrar.sol';
-import '@ensdomains/ens-contracts/contracts/ethregistrar/BaseRegistrarImplementation.sol';
-import '@ensdomains/ens-contracts/contracts/ethregistrar/BulkRenewal.sol';
-import '@ensdomains/ens-contracts/contracts/ethregistrar/ETHRegistrarController.sol';
-import '@ensdomains/ens-contracts/contracts/ethregistrar/LinearPremiumPriceOracle.sol';
-import '@ensdomains/ens-contracts/contracts/ethregistrar/PriceOracle.sol';
-import '@ensdomains/ens-contracts/contracts/ethregistrar/StablePriceOracle.sol';
+import '@fnsdomains/fns-contracts/contracts/registry/FNS.sol';
+import '@fnsdomains/fns-contracts/contracts/registry/Registry.sol';
+import '@fnsdomains/fns-contracts/contracts/registry/ReverseRegistrar.sol';
+import '@fnsdomains/fns-contracts/contracts/registry/TestRegistrar.sol';
+// Registrar
+import '@fnsdomains/fns-contracts/contracts/registrar/BaseRegistrar.sol';
+import '@fnsdomains/fns-contracts/contracts/registrar/BaseRegistrarImplementation.sol';
+import '@fnsdomains/fns-contracts/contracts/registrar/BulkRenewal.sol';
+import '@fnsdomains/fns-contracts/contracts/registrar/RegistrarController.sol';
+import '@fnsdomains/fns-contracts/contracts/registrar/LinearPremiumPriceOracle.sol';
+import '@fnsdomains/fns-contracts/contracts/registrar/PriceOracle.sol';
+import '@fnsdomains/fns-contracts/contracts/registrar/StablePriceOracle.sol';
 // Resolvers
-import '@ensdomains/ens-contracts/contracts/resolvers/PublicResolver.sol';
-import '@ensdomains/ens-contracts/contracts/resolvers/Resolver.sol';
+import '@fnsdomains/fns-contracts/contracts/resolvers/PublicResolver.sol';
+import '@fnsdomains/fns-contracts/contracts/resolvers/Resolver.sol';
 ```
 
 ##  Accessing to binary file.
 
-If your environment does not have compiler, you can access to the raw hardhat artifacts files at `node_modules/@ensdomains/ens-contracts/artifacts/contracts/${modName}/${contractName}.sol/${contractName}.json`
+If your environment does not have compiler, you can access to the raw hardhat artifacts files at `node_modules/@fnsdomains/fns-contracts/artifacts/contracts/${modName}/${contractName}.sol/${contractName}.json`
 
 
 ## Contracts
 
 ## Registry
 
-The ENS registry is the core contract that lies at the heart of ENS resolution. All ENS lookups start by querying the registry. The registry maintains a list of domains, recording the owner, resolver, and TTL for each, and allows the owner of a domain to make changes to that data. It also includes some generic registrars.
+The FNS registry is the core contract that lies at the heart of FNS resolution. All FNS lookups start by querying the registry. The registry maintains a list of domains, recording the owner, resolver, and TTL for each, and allows the owner of a domain to make changes to that data. It also includes some generic registrars.
 
-### ENS.sol
+### FNS.sol
 
-Interface of the ENS Registry.
+Interface of the FNS Registry.
 
-### ENSRegistry
+### Registry
 
-Implementation of the ENS Registry, the central contract used to look up resolvers and owners for domains.
-
-### ENSRegistryWithFallback
-
-The new implementation of the ENS Registry after [the 2020 ENS Registry Migration](https://docs.ens.domains/ens-migration-february-2020/technical-description#new-ens-deployment).
+Implementation of the FNS Registry, the central contract used to look up resolvers and owners for domains.
 
 ### FIFSRegistrar
 
@@ -84,30 +72,27 @@ Implementation of the reverse registrar responsible for managing reverse resolut
 
 ### TestRegistrar
 
-Implementation of the `.test` registrar facilitates easy testing of ENS on the Ethereum test networks. Currently deployed on Ropsten network, it provides functionality to instantly claim a domain for test purposes, which expires 28 days after it was claimed.
+Implementation of the `.test` registrar facilitates easy testing of FNS on the Filecoin test networks. Currently deployed on Hyperspace network, it provides functionality to instantly claim a domain for test purposes, which expires 28 days after it was claimed.
 
+## Registrar
 
-## EthRegistrar
-
-Implements an [ENS](https://ens.domains/) registrar intended for the .eth TLD.
-
-These contracts were audited by ConsenSys Diligence; the audit report is available [here](https://github.com/ConsenSys/ens-audit-report-2019-02).
+Implements an [FNS](https://fnsdomains.com/) registrar intended for the .fil TLD.
 
 ### BaseRegistrar
 
-BaseRegistrar is the contract that owns the TLD in the ENS registry. This contract implements a minimal set of functionality:
+BaseRegistrar is the contract that owns the TLD in the FNS registry. This contract implements a minimal set of functionality:
 
  - The owner of the registrar may add and remove controllers.
  - Controllers may register new domains and extend the expiry of (renew) existing domains. They can not change the ownership or reduce the expiration time of existing domains.
  - Name owners may transfer ownership to another address.
- - Name owners may reclaim ownership in the ENS registry if they have lost it.
+ - Name owners may reclaim ownership in the FNS registry if they have lost it.
  - Owners of names in the interim registrar may transfer them to the new registrar, during the 1 year transition period. When they do so, their deposit is returned to them in its entirety.
 
 This separation of concerns provides name owners strong guarantees over continued ownership of their existing names, while still permitting innovation and change in the way names are registered and renewed via the controller mechanism.
 
-### EthRegistrarController
+### RegistrarController
 
-EthRegistrarController is the first implementation of a registration controller for the new registrar. This contract implements the following functionality:
+RegistrarController is the first implementation of a registration controller for the new registrar. This contract implements the following functionality:
 
  - The owner of the registrar may set a price oracle contract, which determines the cost of registrations and renewals based on the name and the desired registration or renewal duration.
  - The owner of the registrar may withdraw any collected funds to their account.
@@ -119,11 +104,11 @@ The commit/reveal process is used to avoid frontrunning, and operates as follows
  1. A user commits to a hash, the preimage of which contains the name to be registered and a secret value.
  2. After a minimum delay period and before the commitment expires, the user calls the register function with the name to register and the secret value from the commitment. If a valid commitment is found and the other preconditions are met, the name is registered.
 
-The minimum delay and expiry for commitments exist to prevent miners or other users from effectively frontrunning registrations.
+The minimum delay and expiry for commitments exist to prevent miners or other users from effectively frontrunnig registrations.
 
 ### SimplePriceOracle
 
-SimplePriceOracle is a trivial implementation of the pricing oracle for the EthRegistrarController that always returns a fixed price per domain per year, determined by the contract owner.
+SimplePriceOracle is a trivial implementation of the pricing oracle for the RegistrarController that always returns a fixed price per domain per year, determined by the contract owner.
 
 ### StablePriceOracle
 
@@ -131,7 +116,7 @@ StablePriceOracle is a price oracle implementation that allows the contract owne
 
 ## Resolvers
 
-Resolver implements a general-purpose ENS resolver that is suitable for most standard ENS use cases. The public resolver permits updates to ENS records by the owner of the corresponding name.
+Resolver implements a general-purpose FNS resolver that is suitable for most standard FNS use-cases. The public resolver permits updates to FNS records by the owner of the corresponding name.
 
 PublicResolver includes the following profiles that implements different EIPs.
 
@@ -142,15 +127,15 @@ PublicResolver includes the following profiles that implements different EIPs.
 - NameResolver = EIP 181 - Reverse resolution (`name()`).
 - PubkeyResolver = EIP 619 - SECP256k1 public keys (`pubkey()`).
 - TextResolver = EIP 634 - Text records (`text()`).
-- DNSResolver = Experimental support is available for hosting DNS domains on the Ethereum blockchain via ENS. [The more detail](https://veox-ens.readthedocs.io/en/latest/dns.html) is on the old ENS doc.
+- DNSResolver = Experimental support is available for hosting DNS domains on the Filecoin blockchain via FNS.
 
 ## Developer guide
 
 ### How to setup
 
 ```
-git clone https://github.com/ensdomains/ens-contracts
-cd ens-contracts
+git clone https://github.com/fnsdomains/fns-contracts
+cd fns-contracts
 yarn
 ```
 
@@ -168,4 +153,4 @@ yarn pub
 
 ### Release flow
 
-Smart contract development tends to take a long release cycle. To prevent unnecessary dependency conflicts, please create a feature branch (`features/$BRNACH_NAME`) and raise a PR against the feature branch. The feature branch must be merged into master only after the smart contracts are deployed to the Ethereum mainnet.
+Smart contract development tends to take a long release cycle. To prevent unnecesarily dependency conflicts, please create a feature branch (`features/$BRNACH_NAME`) and raise a PR against the feature branch. The feature branch must be merged into master only after the smart contracts are deployed to the Filecoin mainnet.
