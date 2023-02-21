@@ -1,5 +1,5 @@
 {
-  "name": "@fnsdomains/fns-contracts",
+  "name": "@fildomains/fns-contracts",
   "version": "0.0.9",
   "description": "FNS contracts",
   "scripts": {
@@ -67,12 +67,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ensdomains/ens-contracts.git"
+    "url": "git+https://github.com/fildomains/fns-contracts.git"
   },
-  "author": "",
+  "author": "ancjf <ancjf@163.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ensdomains/ens-contracts/issues"
+    "url": "https://github.com/fildomains/fns-contracts/issues"
   },
-  "homepage": "https://github.com/ensdomains/ens-contracts#readme"
+  "homepage": "https://github.com/fildomains/fns-contracts#readme"
 }
