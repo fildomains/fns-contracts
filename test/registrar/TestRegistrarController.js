@@ -3,6 +3,7 @@ const {
   reverse: { getReverseNode },
   contracts: { deploy },
   ens: { FUSES },
+  deployController: {deployController},
 } = require('../test-utils')
 
 const { CANNOT_UNWRAP, PARENT_CANNOT_CONTROL, IS_DOT_ETH } = FUSES
@@ -108,14 +109,8 @@ contract('RegistrarController', function () {
       dummyOracle.address,
       [0, 0, 4, 2, 1],
     )
-    controller = await deploy(
-      'RegistrarController',
-      baseRegistrar.address,
-      priceOracle.address,
-      600,
-      86400,
-      reverseRegistrar.address,
-      nameWrapper.address,
+    controller = await deployController(
+        {baseRegistrar, priceOracle, reverseRegistrar, nameWrapper}
     )
     controller2 = controller.connect(signers[1])
     await nameWrapper.setController(controller.address, true)
@@ -645,11 +640,7 @@ contract('RegistrarController', function () {
     var balanceBefore = await web3.eth.getBalance(controller.address)
     const duration = 86400
     const [price] = await controller.rentPrice(sha3('newname'), duration)
-    await controller2.renew(
-      'newname',
-      duration,
-      { value: price },
-    )
+    await controller2.renew('newname', duration, { value: price })
     var newExpires = await baseRegistrar.nameExpires(sha3('newname'))
     const [, newFuses, newFuseExpiry] = await nameWrapper.getData(nodehash)
     expect(newExpires.toNumber() - expires.toNumber()).to.equal(duration)

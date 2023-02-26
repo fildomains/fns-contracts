@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
-
 pragma experimental ABIEncoderV2;
 
 import "./Owned.sol";
@@ -9,6 +8,7 @@ import "./RRUtils.sol";
 import "./DNSSEC.sol";
 import "./algorithms/Algorithm.sol";
 import "./digests/Digest.sol";
+import "@ensdomains/buffer/contracts/Buffer.sol";
 
 /*
  * @dev An oracle contract that verifies and stores DNSSEC-validated DNS records.
@@ -84,7 +84,9 @@ contract DNSSECImpl is DNSSEC, Owned {
      * @return rrs The RRData from the last RRSet in the chain.
      * @return inception The inception time of the signed record set.
      */
-    function verifyRRSet(RRSetWithSignature[] memory input)
+    function verifyRRSet(
+        RRSetWithSignature[] memory input
+    )
         external
         view
         virtual
@@ -102,7 +104,10 @@ contract DNSSECImpl is DNSSEC, Owned {
      * @return rrs The RRData from the last RRSet in the chain.
      * @return inception The inception time of the signed record set.
      */
-    function verifyRRSet(RRSetWithSignature[] memory input, uint256 now)
+    function verifyRRSet(
+        RRSetWithSignature[] memory input,
+        uint256 now
+    )
         public
         view
         virtual
@@ -173,11 +178,10 @@ contract DNSSECImpl is DNSSEC, Owned {
      * @param rrset The RR set.
      * @param typecovered The type covered by the RRSIG record.
      */
-    function validateRRs(RRUtils.SignedSet memory rrset, uint16 typecovered)
-        internal
-        pure
-        returns (bytes memory name)
-    {
+    function validateRRs(
+        RRUtils.SignedSet memory rrset,
+        uint16 typecovered
+    ) internal pure returns (bytes memory name) {
         // Iterate over all the RRs
         for (
             RRUtils.RRIterator memory iter = rrset.rrs();
@@ -310,7 +314,7 @@ contract DNSSECImpl is DNSSEC, Owned {
         }
 
         Algorithm algorithm = algorithms[dnskey.algorithm];
-        if(address(algorithm) == address(0)) {
+        if (address(algorithm) == address(0)) {
             return false;
         }
         return algorithm.verify(keyrdata, data.rrset, data.sig);

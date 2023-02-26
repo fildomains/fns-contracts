@@ -21,5 +21,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 }
 
 func.runAtTheEnd = true
+func.id = 'get-address'
+func.tags = ['get-address']
+func.dependencies = [
+  'setup',
+]
 
 export default func

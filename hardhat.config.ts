@@ -11,7 +11,7 @@ import 'hardhat-gas-reporter'
 import { HardhatUserConfig, task } from 'hardhat/config'
 import { Artifact } from 'hardhat/types'
 import { promisify } from 'util'
-import "hardhat-contract-sizer";
+import 'hardhat-contract-sizer'
 
 const exec = promisify(_exec)
 

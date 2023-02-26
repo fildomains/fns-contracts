@@ -1,6 +1,6 @@
 {
   "name": "@fildomains/fns-contracts",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "FNS contracts",
   "scripts": {
     "test": "hardhat test --network hardhat",
@@ -9,8 +9,10 @@
     "node": "hardhat node --hostname 0.0.0.0",
     "lint": "hardhat check",
     "build": "shx rm -rf ./build/deploy ./build/hardhat.config.js && hardhat compile && tsc",
+    "format": "prettier --write .",
     "prepublishOnly": "yarn build",
-    "pub": "yarn publish --access public"
+    "pub": "yarn publish --access public",
+    "prepare": "husky install"
   },
   "files": [
     "build",
@@ -37,6 +39,7 @@
     "dotenv": "^10.0.0",
     "elliptic-solidity": "^1.0.0",
     "envfile": "^6.17.0",
+    "eslint-plugin-babel": "^5.3.1",
     "ethereum-waffle": "^3.3.0",
     "ethers": "^5.7.2",
     "hardhat": "^2.12.4",
@@ -44,6 +47,7 @@
     "hardhat-contract-sizer": "^2.6.1",
     "hardhat-deploy": "^0.11.10",
     "hardhat-gas-reporter": "^1.0.4",
+    "husky": "^8.0.0",
     "prettier": "^2.6.2",
     "prettier-plugin-solidity": "^1.0.0-beta.24",
     "rfc4648": "^1.5.0",
@@ -69,7 +73,7 @@
     "type": "git",
     "url": "git+https://github.com/fildomains/fns-contracts.git"
   },
-  "author": "ancjf <ancjf@163.com>",
+  "author": "amncjf <amncjf@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/fildomains/fns-contracts/issues"

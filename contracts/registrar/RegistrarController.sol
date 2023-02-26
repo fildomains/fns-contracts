@@ -60,7 +60,8 @@ contract RegistrarController is
         uint256 _minCommitmentAge,
         uint256 _maxCommitmentAge,
         ReverseRegistrar _reverseRegistrar,
-        INameWrapper _nameWrapper
+        INameWrapper _nameWrapper,
+        address payable _fnsToken
     ) {
         if (_maxCommitmentAge <= _minCommitmentAge) {
             revert MaxCommitmentAgeTooLow();
@@ -76,7 +77,7 @@ contract RegistrarController is
         maxCommitmentAge = _maxCommitmentAge;
         reverseRegistrar = _reverseRegistrar;
         nameWrapper = _nameWrapper;
-        token = new FNSToken();
+        token = FNSToken(_fnsToken);
         minted = 0;
     }
 

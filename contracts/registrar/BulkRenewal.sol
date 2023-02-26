@@ -10,7 +10,7 @@ import "./IPriceOracle.sol";
 
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-contract BulkRenewal is IBulkRenewal {
+contract BulkRenewal is IBulkRenewal, IERC165 {
     bytes32 private constant FIL_NAMEHASH =
         0x78f6b1389af563cc5c91f234ea46b055e49658d8b999eeb9e0baef7dbbc93fdb;
 
@@ -31,12 +31,10 @@ contract BulkRenewal is IBulkRenewal {
             );
     }
 
-    function rentPrice(string[] calldata names, uint256 duration)
-        external
-        view
-        override
-        returns (uint256 total)
-    {
+    function rentPrice(
+        string[] calldata names,
+        uint256 duration
+    ) external view override returns (uint256 total) {
         RegistrarController controller = getController();
         uint256 length = names.length;
         for (uint256 i = 0; i < length; ) {
@@ -51,11 +49,10 @@ contract BulkRenewal is IBulkRenewal {
         }
     }
 
-    function renewAll(string[] calldata names, uint256 duration)
-        external
-        payable
-        override
-    {
+    function renewAll(
+        string[] calldata names,
+        uint256 duration
+    ) external payable override {
         RegistrarController controller = getController();
         uint256 length = names.length;
         uint256 total;
@@ -75,11 +72,9 @@ contract BulkRenewal is IBulkRenewal {
         payable(msg.sender).transfer(address(this).balance);
     }
 
-    function supportsInterface(bytes4 interfaceID)
-        external
-        pure
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceID
+    ) external pure override returns (bool) {
         return
             interfaceID == type(IERC165).interfaceId ||
             interfaceID == type(IBulkRenewal).interfaceId;

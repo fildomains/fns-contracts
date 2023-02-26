@@ -2,6 +2,7 @@ const {
   evm,
   reverse: { getReverseNode },
   contracts: { deploy },
+  deployController: {deployController},
 } = require('../test-utils')
 
 const { expect } = require('chai')
@@ -28,17 +29,20 @@ contract('FNSToken', function () {
   let controller2 // controller signed by accounts[1]
   let token
   let sundayAddress
-  let beneficiary
+  let receiverAddress
+  let receiver
   let sunday
   let priceOracle
   let reverseRegistrar
   let nameWrapper
+  let dummyOracle
   let callData
 
   const secret =
     '0x0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
   let ownerAccount // Account that owns the registrar
   let registrantAccount // Account that owns test names
+  let signers
   let accounts = []
 
   async function registerName(
@@ -141,7 +145,7 @@ contract('FNSToken', function () {
     signers = await ethers.getSigners()
     ownerAccount = await signers[0].getAddress()
     registrantAccount = await signers[1].getAddress()
-    accounts = [ownerAccount, registrantAccount, signers[2].getAddress()]
+    accounts = [ownerAccount, registrantAccount, await signers[2].getAddress()]
 
     fns = await deploy('Registry')
 
@@ -162,27 +166,24 @@ contract('FNSToken', function () {
 
     await fns.setSubnodeOwner(EMPTY_BYTES, sha3('fil'), baseRegistrar.address)
 
-    const dummyOracle = await deploy('DummyOracle', '100000000')
+    dummyOracle = await deploy('DummyOracle', '100000000')
     priceOracle = await deploy(
       'StablePriceOracle',
       dummyOracle.address,
       [0, 0, 4, 2, 1],
     )
-    controller = await deploy(
-      'RegistrarController',
-      baseRegistrar.address,
-      priceOracle.address,
-      600,
-      86400,
-      reverseRegistrar.address,
-      nameWrapper.address,
+
+    controller = await deployController(
+        {baseRegistrar, priceOracle, reverseRegistrar, nameWrapper}
     )
+
     controller2 = controller.connect(signers[1])
 
     token = await ethers.getContractAt('FNSToken', await controller.token())
     sundayAddress = await token.sunday()
-    beneficiary = await token.beneficiary()
+    receiverAddress = await token.receiver()
     sunday = await ethers.getContractAt('Sunday', sundayAddress)
+    receiver = await ethers.getContractAt('Receiver', receiverAddress)
 
     await baseRegistrar.addController(controller.address)
     await nameWrapper.setController(controller.address, true)
@@ -337,7 +338,7 @@ contract('FNSToken', function () {
   })
 
   it('you cant collect your earnings on sundays with fns', async () => {
-    let beforeBalance = parseInt(await web3.eth.getBalance(beneficiary))
+    let beforeBalance = parseInt(await web3.eth.getBalance(receiverAddress))
 
     await registerName('newconfigname')
     await registerNameFns('newconfigname1')
@@ -355,7 +356,7 @@ contract('FNSToken', function () {
     ).to.equal(balance.toString())
 
     expect(
-        (await token.balanceOf(beneficiary)).toString(),
+        (await token.balanceOf(receiverAddress)).toString(),
     ).to.equal(baseCost.div(10).toString())
 
     await expect(
@@ -367,7 +368,7 @@ contract('FNSToken', function () {
         sundayBalance,
     ).to.equal(Math.floor((REGISTRATION_TIME * 9) /10))
     expect(
-        parseInt(await web3.eth.getBalance(beneficiary)) - beforeBalance,
+        parseInt(await web3.eth.getBalance(receiverAddress)) - beforeBalance,
     ).to.equal(Math.floor(REGISTRATION_TIME /10))
 
     await evm.advanceTime(24 * 3600)
@@ -414,6 +415,120 @@ contract('FNSToken', function () {
     )
   })
 
+  it('the function of setController DummyOracle can be called directly', async () => {
+    const dummyOracleOther = dummyOracle.connect(signers[5])
+    const otherAddress = await signers[5].getAddress()
+
+    await expect(
+        dummyOracleOther.set(1)
+    ).to.be.revertedWith(
+        'Controllable: Caller is not a controller',
+    )
+
+    await expect(
+        dummyOracleOther.setController(
+            otherAddress,
+            true
+        )
+    ).to.be.revertedWith(
+        'Ownable: caller is not the owner',
+    )
+
+    await expect(
+        dummyOracleOther.transferOwnership(otherAddress)
+    ).to.be.revertedWith(
+        'Ownable: caller is not the owner',
+    )
+
+    await expect(
+        dummyOracle.transferOwnership(otherAddress)
+    ).to.be.emit(dummyOracle, 'OwnershipTransferred').withArgs(ownerAccount, otherAddress);
+
+    await expect(dummyOracleOther.setController(
+        otherAddress,
+        true
+    )).to.be.emit(dummyOracle, 'ControllerChanged').withArgs(otherAddress, true );
+
+    const tx = await dummyOracleOther.set(1)
+    const receipt = await tx.wait()
+
+    expect(
+        await dummyOracleOther.latestAnswer()
+    ).to.be.equal('1')
+  })
+
+  it('the function of setController Receiver can be called directly', async () => {
+    const reciverOther = receiver.connect(signers[5])
+    const otherAddress = await signers[5].getAddress()
+
+    await expect(
+       reciverOther.setController(
+           otherAddress,
+          true
+      )
+    ).to.be.revertedWith(
+        'Ownable: caller is not the owner',
+    )
+
+    await expect(
+        reciverOther.transferOwnership(otherAddress)
+    ).to.be.revertedWith(
+        'Ownable: caller is not the owner',
+    )
+
+    await expect(
+        receiver.transferOwnership(otherAddress)
+    ).to.be.emit(receiver, 'OwnershipTransferred').withArgs(ownerAccount, otherAddress);
+
+    await expect(await reciverOther.setController(
+        await signers[6].getAddress(),
+        true
+    )).to.be.emit(receiver, 'ControllerChanged').withArgs(await signers[6].getAddress(), true);
+  })
+
+  it('the function of withdraw Receiver can be called directly', async () => {
+    expect(await web3.eth.getBalance(receiverAddress)).to.be.equal('0')
+    expect(await token.balanceOf(receiverAddress)).to.be.equal('0')
+
+    await registerName('newconfigname')
+    await registerNameFns('newconfigname1')
+
+    expect(await web3.eth.getBalance(receiverAddress)).to.be.equal('241920')
+    expect(await token.balanceOf(receiverAddress)).to.be.equal('241920')
+
+    const reciverOther = receiver.connect(signers[5])
+
+    await expect(reciverOther.setController(
+        await signers[5].getAddress(),
+        true
+    )).to.be.revertedWith(
+      'Ownable: caller is not the owner',
+    )
+
+    await expect(reciverOther.withdraw()).to.be.revertedWith(
+        'Controllable: Caller is not a controller',
+    )
+
+    const withdrawAddress = await signers[6].getAddress()
+    await expect(receiver.setController(
+        withdrawAddress,
+        true
+    )).to.be.emit(receiver, 'ControllerChanged').withArgs(withdrawAddress, true );
+
+    let beforeBalance = ethers.BigNumber.from(await web3.eth.getBalance(withdrawAddress))
+
+    const tx = await receiver.connect(signers[6]).withdraw()
+    const receipt = await tx.wait()
+
+    const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+    const balance = ethers.BigNumber.from(await web3.eth.getBalance(withdrawAddress))
+    expect(balance).to.be.equal(beforeBalance.sub(gasUsed).add(241920))
+    expect(await token.balanceOf(withdrawAddress)).to.be.equal('241920')
+
+    expect(await web3.eth.getBalance(receiverAddress)).to.be.equal('0')
+    expect(await token.balanceOf(receiverAddress)).to.be.equal('0')
+  })
+
   it('the function renew of RegistrarController can be called directly', async () => {
     await registerName('newconfigname')
     await registerNameFns('newconfigname1')
@@ -433,6 +548,84 @@ contract('FNSToken', function () {
         REGISTRATION_TIME
     )).to.be.revertedWith(
         'FNS: caller is not the fns',
+    )
+  })
+
+  it('the function rentPrice of FNSToken can be called directly', async () => {
+    await registerName('newconfigname')
+    await registerNameFns('newconfigname1')
+    await registerNameFns('newconfigname2')
+
+     expect((await token['rentPrice(string,uint256)'](
+        'newconfigname1',
+        DAYS
+    ))[2].toString()).to.be.equal(DAYS.toString())
+
+    expect((await token['rentPrice(string[],uint256)'](
+        ['newconfigname1', 'newconfigname2'],
+        DAYS
+    ))).to.be.equal((DAYS * 2).toString())
+  })
+
+  it('the function renew of FNSToken can be called directly', async () => {
+    await registerName('newconfigname')
+    await registerNameFns('newconfigname1')
+
+    const expires = parseInt(await baseRegistrar.nameExpires(sha3('newconfigname1')))
+    const balance = parseInt(await token.balanceOf(ownerAccount))
+
+    await expect(token.renew(
+        'newconfigname1',
+        DAYS
+    )).to.be.emit(token, 'NameRenewed')
+
+    expect(parseInt(await baseRegistrar.nameExpires(sha3('newconfigname1')))).to.be.equal(expires + DAYS);
+    expect(parseInt(await token.balanceOf(ownerAccount))).to.be.equal(balance - DAYS);
+  })
+
+  it('the function renew of FNSToken can be called directly', async () => {
+    await registerName('newconfigname')
+    await registerNameFns('newconfigname1')
+
+    await expect(token.renew(
+        'newconfigname1',
+        DAYS,
+        { value: BUFFERED_REGISTRATION_COST }
+    )).to.be.revertedWith(
+        'FNS: Please pay in FNS',
+    )
+  })
+
+  it('the function renewAll of FNSToken can be called directly', async () => {
+    await registerName('newconfigname')
+    await registerNameFns('newconfigname1')
+    await registerNameFns('newconfigname2')
+
+    const expires1 = parseInt(await baseRegistrar.nameExpires(sha3('newconfigname1')))
+    const expires2 = parseInt(await baseRegistrar.nameExpires(sha3('newconfigname2')))
+    const balance = parseInt(await token.balanceOf(ownerAccount))
+
+    await expect(token.renewAll(
+        ['newconfigname1', 'newconfigname2'],
+        DAYS
+    )).to.be.emit(token, 'NameRenewed')
+
+    expect(parseInt(await baseRegistrar.nameExpires(sha3('newconfigname1')))).to.be.equal(expires1 + DAYS);
+    expect(parseInt(await baseRegistrar.nameExpires(sha3('newconfigname2')))).to.be.equal(expires2 + DAYS);
+    expect(parseInt(await token.balanceOf(ownerAccount))).to.be.equal(balance - (2 * DAYS));
+  })
+
+  it('the function renewAll of FNSToken can be called directly', async () => {
+    await registerName('newconfigname')
+    await registerNameFns('newconfigname1')
+    await registerNameFns('newconfigname2')
+
+    await expect(token.renewAll(
+        ['newconfigname1', 'newconfigname2'],
+        DAYS,
+        { value: BUFFERED_REGISTRATION_COST }
+    )).to.be.revertedWith(
+        'FNS: Please pay in FNS',
     )
   })
 })

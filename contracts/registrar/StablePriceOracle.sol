@@ -108,12 +108,9 @@ contract StablePriceOracle is IPriceOracle, Ownable {
         return (amount * ethPrice) / 1e8;
     }
 
-    function supportsInterface(bytes4 interfaceID)
-        public
-        view
-        virtual
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceID
+    ) public view virtual returns (bool) {
         return
             interfaceID == type(IERC165).interfaceId ||
             interfaceID == type(IPriceOracle).interfaceId;

@@ -562,7 +562,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 func.id = 'register-names'
 func.tags = ['register-names']
-func.dependencies = ['RegistrarController']
+func.dependencies = ['set-primary', 'get-address']
 func.runAtTheEnd = true
 
 export default func

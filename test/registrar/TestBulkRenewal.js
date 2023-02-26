@@ -1,3 +1,7 @@
+const {
+  deployController: {deployController},
+} = require('../test-utils')
+
 const FNS = artifacts.require('./registry/Registry')
 const PublicResolver = artifacts.require('./resolvers/PublicResolver')
 const BaseRegistrar = artifacts.require('./BaseRegistrarImplementation')
@@ -55,15 +59,11 @@ contract('BulkRenewal', function (accounts) {
       dummyOracle.address,
       [0, 0, 4, 2, 1],
     )
-    controller = await RegistrarController.new(
-      baseRegistrar.address,
-      priceOracle.address,
-      600,
-      86400,
-      EMPTY_ADDRESS,
-      nameWrapper.address,
-      { from: ownerAccount },
+
+    controller = await deployController(
+        {baseRegistrar, priceOracle, reverseRegistrar: {address: EMPTY_ADDRESS}, nameWrapper}
     )
+
     var wrapperAddress = await controller.nameWrapper()
     await baseRegistrar.addController(controller.address, {
       from: ownerAccount,

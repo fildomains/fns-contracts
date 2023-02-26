@@ -13,10 +13,18 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar', owner)
   const nameWrapper = await ethers.getContract('NameWrapper')
 
+  const nonce = await ethers.provider.getTransactionCount(deployer)
   const minCommitmentAge = network.name == 'hardhat' ? 0 : 60
   console.log(
-      `Setting RegistrarController minCommitmentAge: ${minCommitmentAge} network: ${network.name}}`
+      `Setting RegistrarController minCommitmentAge: ${minCommitmentAge},network: ${network.name},nonce: ${nonce}}`
   )
+
+  const controllerAddress = ethers.utils.getContractAddress({from: deployer, nonce: nonce});
+  const tokenAddress = ethers.utils.getContractAddress({from: deployer, nonce: nonce+1});
+  const sundayAddress = ethers.utils.getContractAddress({from: deployer, nonce: nonce+2});
+  const receiverAddress = ethers.utils.getContractAddress({from: deployer, nonce: nonce+3});
+  console.log('controllerAddress:', controllerAddress, 'tokenAddress:', tokenAddress, ',receiverAddress:', receiverAddress, ',sundayAddress:', sundayAddress)
+
   const deployArgs = {
     from: deployer,
     args: [
@@ -26,11 +34,38 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       86400,
       reverseRegistrar.address,
       nameWrapper.address,
+      tokenAddress
     ],
     log: true,
   };
   const controller = await deploy('RegistrarController', deployArgs)
   //if(!controller.newlyDeployed) return;
+
+  await deploy('FNSToken', {
+    from: deployer,
+    args: [
+      controllerAddress,
+      sundayAddress,
+      receiverAddress
+    ],
+    log: true,
+  })
+
+  await deploy('Sunday', {
+    from: deployer,
+    args: [
+      tokenAddress
+    ],
+    log: true,
+  })
+
+  await deploy('Receiver', {
+    from: deployer,
+    args: [
+      tokenAddress
+    ],
+    log: true,
+  })
 
   // Only attempt to make controller etc changes directly on testnets
   //if(network.name === 'mainnet') return;

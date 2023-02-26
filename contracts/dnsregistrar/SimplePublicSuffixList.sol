@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 pragma experimental ABIEncoderV2;
 
-import "../root/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./PublicSuffixList.sol";
 
 contract SimplePublicSuffixList is PublicSuffixList, Ownable {
@@ -14,12 +14,9 @@ contract SimplePublicSuffixList is PublicSuffixList, Ownable {
         }
     }
 
-    function isPublicSuffix(bytes calldata name)
-        external
-        view
-        override
-        returns (bool)
-    {
+    function isPublicSuffix(
+        bytes calldata name
+    ) external view override returns (bool) {
         return suffixes[name];
     }
 }

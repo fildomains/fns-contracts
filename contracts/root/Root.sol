@@ -20,10 +20,10 @@ contract Root is Ownable, Controllable {
         fns = _fns;
     }
 
-    function setSubnodeOwner(bytes32 label, address owner)
-        external
-        onlyController
-    {
+    function setSubnodeOwner(
+        bytes32 label,
+        address owner
+    ) external onlyController {
         require(!locked[label]);
         fns.setSubnodeOwner(ROOT_NODE, label, owner);
     }
@@ -37,11 +37,9 @@ contract Root is Ownable, Controllable {
         locked[label] = true;
     }
 
-    function supportsInterface(bytes4 interfaceID)
-        external
-        pure
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceID
+    ) external pure returns (bool) {
         return interfaceID == INTERFACE_META_ID;
     }
 }

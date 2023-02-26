@@ -19,7 +19,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
 func.id = 'multicall'
 func.tags = ['multicall', 'Multicall']
-func.dependencies = ['registry']
+func.dependencies = ['registry', 'UniversalResolver']
 
 export default func
 

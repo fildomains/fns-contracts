@@ -4,11 +4,12 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 /**
  * @dev An ERC20 token for FNS lock.
  */
-contract Sunday is ERC20Pausable, Ownable {
+contract Sunday is ERC20Pausable, Ownable, IERC165 {
     struct share {
         uint256 fil;
         uint256 fns;
@@ -22,10 +23,10 @@ contract Sunday is ERC20Pausable, Ownable {
     /**
      * @dev Constructor.
      */
-    constructor()
+    constructor(address _fnsToken)
         ERC20("Sunday", "SUN")
     {
-        token = IERC20(owner());
+        token = IERC20(_fnsToken);
     }
 
     receive() external payable {
@@ -132,5 +133,16 @@ contract Sunday is ERC20Pausable, Ownable {
 
         _earnings[w][_msgSender()] = share({fil: fil, fns: fnsAmount, inited: true});
         emit Earnings(_msgSender(), w, fil, fnsAmount);
+    }
+
+    function supportsInterface(bytes4 interfaceID)
+        external
+        pure
+        override
+        returns (bool)
+    {
+        return
+            interfaceID == type(IERC20).interfaceId ||
+            interfaceID == type(IERC20Metadata).interfaceId;
     }
 }

@@ -30,11 +30,10 @@ library BytesUtils {
      * @param other The second bytes to compare.
      * @return The result of the comparison.
      */
-    function compare(bytes memory self, bytes memory other)
-        internal
-        pure
-        returns (int256)
-    {
+    function compare(
+        bytes memory self,
+        bytes memory other
+    ) internal pure returns (int256) {
         return compare(self, 0, self.length, other, 0, other.length);
     }
 
@@ -59,13 +58,13 @@ library BytesUtils {
         uint256 otheroffset,
         uint256 otherlen
     ) internal pure returns (int256) {
-        if(offset + len > self.length) {
+        if (offset + len > self.length) {
             revert OffsetOutOfBoundsError(offset + len, self.length);
         }
-        if(otheroffset + otherlen > other.length) {
+        if (otheroffset + otherlen > other.length) {
             revert OffsetOutOfBoundsError(otheroffset + otherlen, other.length);
         }
-        
+
         uint256 shortest = len;
         if (otherlen < len) shortest = otherlen;
 
@@ -163,11 +162,10 @@ library BytesUtils {
      * @param other The second byte range to compare.
      * @return True if the byte ranges are equal, false otherwise.
      */
-    function equals(bytes memory self, bytes memory other)
-        internal
-        pure
-        returns (bool)
-    {
+    function equals(
+        bytes memory self,
+        bytes memory other
+    ) internal pure returns (bool) {
         return
             self.length == other.length &&
             equals(self, 0, other, 0, self.length);
@@ -179,11 +177,10 @@ library BytesUtils {
      * @param idx The index into the bytes
      * @return The specified 8 bits of the string, interpreted as an integer.
      */
-    function readUint8(bytes memory self, uint256 idx)
-        internal
-        pure
-        returns (uint8 ret)
-    {
+    function readUint8(
+        bytes memory self,
+        uint256 idx
+    ) internal pure returns (uint8 ret) {
         return uint8(self[idx]);
     }
 
@@ -193,11 +190,10 @@ library BytesUtils {
      * @param idx The index into the bytes
      * @return The specified 16 bits of the string, interpreted as an integer.
      */
-    function readUint16(bytes memory self, uint256 idx)
-        internal
-        pure
-        returns (uint16 ret)
-    {
+    function readUint16(
+        bytes memory self,
+        uint256 idx
+    ) internal pure returns (uint16 ret) {
         require(idx + 2 <= self.length);
         assembly {
             ret := and(mload(add(add(self, 2), idx)), 0xFFFF)
@@ -210,11 +206,10 @@ library BytesUtils {
      * @param idx The index into the bytes
      * @return The specified 32 bits of the string, interpreted as an integer.
      */
-    function readUint32(bytes memory self, uint256 idx)
-        internal
-        pure
-        returns (uint32 ret)
-    {
+    function readUint32(
+        bytes memory self,
+        uint256 idx
+    ) internal pure returns (uint32 ret) {
         require(idx + 4 <= self.length);
         assembly {
             ret := and(mload(add(add(self, 4), idx)), 0xFFFFFFFF)
@@ -227,11 +222,10 @@ library BytesUtils {
      * @param idx The index into the bytes
      * @return The specified 32 bytes of the string.
      */
-    function readBytes32(bytes memory self, uint256 idx)
-        internal
-        pure
-        returns (bytes32 ret)
-    {
+    function readBytes32(
+        bytes memory self,
+        uint256 idx
+    ) internal pure returns (bytes32 ret) {
         require(idx + 32 <= self.length);
         assembly {
             ret := mload(add(add(self, 32), idx))
@@ -244,11 +238,10 @@ library BytesUtils {
      * @param idx The index into the bytes
      * @return The specified 32 bytes of the string.
      */
-    function readBytes20(bytes memory self, uint256 idx)
-        internal
-        pure
-        returns (bytes20 ret)
-    {
+    function readBytes20(
+        bytes memory self,
+        uint256 idx
+    ) internal pure returns (bytes20 ret) {
         require(idx + 20 <= self.length);
         assembly {
             ret := and(
@@ -278,11 +271,7 @@ library BytesUtils {
         }
     }
 
-    function memcpy(
-        uint256 dest,
-        uint256 src,
-        uint256 len
-    ) private pure {
+    function memcpy(uint256 dest, uint256 src, uint256 len) private pure {
         // Copy word-length chunks while possible
         for (; len >= 32; len -= 32) {
             assembly {
@@ -294,7 +283,7 @@ library BytesUtils {
 
         // Copy remaining bytes
         unchecked {
-            uint256 mask = (256**(32 - len)) - 1;
+            uint256 mask = (256 ** (32 - len)) - 1;
             assembly {
                 let srcpart := and(mload(src), not(mask))
                 let destpart := and(mload(dest), mask)
@@ -408,5 +397,34 @@ library BytesUtils {
             }
         }
         return type(uint256).max;
+    }
+
+    /**
+     * @dev Attempts to parse an address from a hex string
+     * @param str The string to parse
+     * @param idx The offset to start parsing at
+     * @param lastIdx The (exclusive) last index in `str` to consider. Use `str.length` to scan the whole string.
+     */
+    function hexToAddress(
+        bytes memory str,
+        uint256 idx,
+        uint256 lastIdx
+    ) internal pure returns (address, bool) {
+        if (lastIdx - idx < 40) return (address(0x0), false);
+        uint256 ret = 0;
+        for (uint256 i = idx; i < idx + 40; i++) {
+            ret <<= 4;
+            uint256 x = readUint8(str, i);
+            if (x >= 48 && x < 58) {
+                ret |= x - 48;
+            } else if (x >= 65 && x < 71) {
+                ret |= x - 55;
+            } else if (x >= 97 && x < 103) {
+                ret |= x - 87;
+            } else {
+                return (address(0x0), false);
+            }
+        }
+        return (address(uint160(ret)), true);
     }
 }

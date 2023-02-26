@@ -22,8 +22,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const dummyOracle = await ethers.getContract('DummyOracle')
     const reverseRegistrar = await ethers.getContract('ReverseRegistrar', owner)
 
+    const token = await ethers.getContractAt('FNSToken', await controller.token())
+    const receiverAddress = await token.receiver()
+    const receiver = await ethers.getContractAt('Receiver', receiverAddress)
+    const sundayAddress = await token.sunday()
+    const sunday = await ethers.getContractAt('Sunday', sundayAddress)
+
+    await send(token, 'transferOwnership', controller.address)
+    await send(sunday, 'transferOwnership', token.address)
+
     console.log('Temporarily setting owner of fil tld to owner ')
     await send(root, 'setSubnodeOwner', labelHash('fil'), owner)
+
+    await send(registry, 'setSubnodeOwner', namehash('fil'), labelhash('data'), owner)
+    await send(registry, 'setSubnodeOwner', namehash('data.fil'), labelhash('fil-usd'), owner)
 
     await send(root, 'setSubnodeOwner', labelhash('reverse'), owner)
     await send(registry, 'setSubnodeOwner', namehash('reverse'), labelhash('addr'), reverseRegistrar.address)
@@ -54,6 +66,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await send(reverseRegistrar, 'setDefaultResolver', resolver.address)
     console.log(`Setting default resolver on ReverseRegistrar to PublicResolver ...`)
 
+    await send(resolver, 'setAddr(bytes32,address)', namehash('fil-usd.data.fil'), dummyOracle.address)
+
+    await send(receiver, 'setController', '0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711', true)
+    await send(dummyOracle, 'setController', '0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711', true)
+    
     if (network.tags.test){
         console.log('Set registrar of test')
 
@@ -77,6 +94,10 @@ func.dependencies = [
     'BulkRenewal',
     'DummyOracle',
     'TestRegistrar',
+    'Multicall',
+    'UniversalResolver',
+    'dnssec-oracle',
+    'dnsregistrar',
 ]
 
 export default func

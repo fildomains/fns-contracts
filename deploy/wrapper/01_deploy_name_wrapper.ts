@@ -22,7 +22,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     args: [registry.address, registrar.address, metadata.address],
     log: true,
-    estimatedGasLimit: 9999999,
   };
 
   const nameWrapper = await deploy('NameWrapper', deployArgs)
