@@ -21,6 +21,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const bulkRenewal = await ethers.getContract('BulkRenewal')
     const dummyOracle = await ethers.getContract('DummyOracle')
     const reverseRegistrar = await ethers.getContract('ReverseRegistrar', owner)
+    const dnsRegistrar = await ethers.getContract('DNSRegistrar', owner)
 
     const token = await ethers.getContractAt('FNSToken', await controller.token())
     const receiverAddress = await token.receiver()
@@ -68,6 +69,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     await send(resolver, 'setAddr(bytes32,address)', namehash('fil-usd.data.fil'), dummyOracle.address)
 
+    await send(root, 'setController', dnsRegistrar.address, true)
     await send(receiver, 'setController', '0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711', true)
     await send(dummyOracle, 'setController', '0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711', true)
     

@@ -1,6 +1,6 @@
 {
   "name": "@fildomains/fns-contracts",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "FNS contracts",
   "scripts": {
     "test": "hardhat test --network hardhat",

@@ -15,7 +15,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [
       registry.address,
       dnssec.address,
-      'https://dnssec-oracle.fns.domains/',
+      'https://dnssec-oracle.fildomains.com/',
     ],
     log: true,
   })
