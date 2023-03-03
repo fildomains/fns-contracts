@@ -2,6 +2,23 @@ import { Interface } from 'ethers/lib/utils';
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import fetch from "node-fetch";
+import {resolve} from "path";
+import {existsSync, mkdirSync} from "fs";
+import {readFile, writeFile} from "fs/promises";
+
+const getNonce = async (deployer: string, name: string) =>{
+  const jsonPath = resolve(__dirname, `../../deployments/${name}/RegistrarController.json`)
+  console.log('getNonce jsonPath:', jsonPath)
+  if (existsSync(jsonPath)) {
+    const contractJson = JSON.parse(await readFile(jsonPath, { encoding: 'utf8' }))
+    const tx = await ethers.provider.getTransaction(contractJson.transactionHash)
+    console.log('getNonce tx.nonce:', tx.nonce)
+    return tx.nonce
+  }
+
+  return await ethers.provider.getTransactionCount(deployer)
+}
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, network } = hre
@@ -13,7 +30,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar', owner)
   const nameWrapper = await ethers.getContract('NameWrapper')
 
-  const nonce = await ethers.provider.getTransactionCount(deployer)
+  const nonce = await getNonce(deployer, network.name)
   const minCommitmentAge = network.name == 'hardhat' ? 0 : 60
   console.log(
       `Setting RegistrarController minCommitmentAge: ${minCommitmentAge},network: ${network.name},nonce: ${nonce}}`
@@ -25,7 +42,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const receiverAddress = ethers.utils.getContractAddress({from: deployer, nonce: nonce+3});
   console.log('controllerAddress:', controllerAddress, 'tokenAddress:', tokenAddress, ',receiverAddress:', receiverAddress, ',sundayAddress:', sundayAddress)
 
-  const deployArgs = {
+  const controller = await deploy('RegistrarController',  {
     from: deployer,
     args: [
       registrar.address,
@@ -37,9 +54,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       tokenAddress
     ],
     log: true,
-  };
-  const controller = await deploy('RegistrarController', deployArgs)
-  //if(!controller.newlyDeployed) return;
+  })
 
   await deploy('FNSToken', {
     from: deployer,
@@ -70,21 +85,25 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Only attempt to make controller etc changes directly on testnets
   //if(network.name === 'mainnet') return;
 
-  const tx1 = await nameWrapper.setController(controller.address, {
-    from: deployer,
-  })
-  console.log(
-    `Adding RegistrarController as a controller of NameWrapper (tx: ${tx1.hash})...`,
-  )
-  await tx1.wait()
+  if(!(await nameWrapper.controllers(deployer))){
+    const tx1 = await nameWrapper.setController(controller.address, {
+      from: deployer,
+    })
+    console.log(
+        `Adding RegistrarController as a controller of NameWrapper (tx: ${tx1.hash})...`,
+    )
+    await tx1.wait()
+  }
 
-  const tx2 = await reverseRegistrar.setController(controller.address, {
-    from: owner,
-  })
-  console.log(
-    `Adding RegistrarController as a controller of ReverseRegistrar (tx: ${tx2.hash})...`,
-  )
-  await tx2.wait()
+  if(!(await nameWrapper.controllers(owner))){
+    const tx2 = await reverseRegistrar.setController(controller.address, {
+      from: owner,
+    })
+    console.log(
+        `Adding RegistrarController as a controller of ReverseRegistrar (tx: ${tx2.hash})...`,
+    )
+    await tx2.wait()
+  }
 }
 
 func.tags = ['ethregistrar', 'RegistrarController']

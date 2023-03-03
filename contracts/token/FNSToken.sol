@@ -48,11 +48,11 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
 
     function receiveCall() external payable{
         payable(address(receiver)).transfer(msg.value/10);
-        payable(address (sunday)).transfer(address(this).balance);
+        payable(address(sunday)).transfer(address(this).balance);
     }
 
     function pledge(uint256 amount) external {
-        transfer(address (sunday), amount);
+        transfer(address(sunday), amount);
     }
 
     /**
@@ -173,7 +173,7 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
     {
         super._afterTokenTransfer(from, to, amount);
 
-        if(to == address (sunday)){
+        if(to == address(sunday)){
             sunday.mint(from, amount);
         }
     }

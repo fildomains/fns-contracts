@@ -3,6 +3,10 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import fetch from 'node-fetch'
 
 const getPrice = async () =>{
+  if(process.env.FIL_PRICE){
+    return parseInt(process.env.FIL_PRICE)
+  }
+
   try{
     const response = await fetch('https://api.coincap.io/v2/assets/filecoin');
     const data = await response.json();

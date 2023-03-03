@@ -1246,7 +1246,7 @@ async function setTLDs(
       console.log(`Transferring .${tld} to new DNS registrar`)
       transactions.push(
         await registrar.enableNode(hexEncodeName(tld), {
-          gasLimit: 10000000,
+          //gasLimit: 10000000,
         }),
       )
     }

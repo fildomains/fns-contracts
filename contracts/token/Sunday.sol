@@ -89,7 +89,7 @@ contract Sunday is ERC20Pausable, Ownable, IERC165 {
         return uint64(0) != uint64(day() % 7);
     }
 
-    function withdrawal (uint256 amount)
+    function withdrawal(uint256 amount)
         external
         whenNotPaused
     {

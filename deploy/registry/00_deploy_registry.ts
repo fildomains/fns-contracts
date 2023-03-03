@@ -11,7 +11,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployer, owner } = await getNamedAccounts()
   const signers = await ethers.getSigners()
 
-  console.log('starting deployer:', deployer)
+  const nonce = await ethers.provider.getTransactionCount(deployer)
+  console.log(`starting deployer:${deployer},nonce:${nonce}`)
   await deploy('Registry', {
     from: deployer,
     args: [],

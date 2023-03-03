@@ -29,7 +29,7 @@ dotenv.config({ debug: false })
 
 let real_accounts = undefined
 if (process.env.DEPLOYER_KEY) {
-  real_accounts = [process.env.DEPLOYER_KEY, process.env.OWNER_KEY || process.env.DEPLOYER_KEY]
+  real_accounts = [process.env.DEPLOYER_KEY, process.env.OWNER_KEY || process.env.DEPLOYER_KEY, process.env.OWNER2_KEY || process.env.DEPLOYER_KEY]
 }
 
 // circular dependency shared with actions
@@ -39,7 +39,7 @@ const config: HardhatUserConfig = {
   defaultNetwork: 'hardhat',
   networks: {
     hardhat: {
-      saveDeployments: true,
+      saveDeployments: false,
       tags: ['test', 'use_root'],
       allowUnlimitedContractSize: false,
     },
@@ -71,7 +71,7 @@ const config: HardhatUserConfig = {
     },
     hyperspace: {
       url: `https://api.hyperspace.node.glif.io/rpc/v1`,
-      tags: ['use_root'],
+      tags: ['test', 'use_root'],
       chainId: 3141,
       saveDeployments: true,
       accounts: real_accounts,
@@ -87,7 +87,7 @@ const config: HardhatUserConfig = {
         settings: {
           optimizer: {
             enabled: true,
-            runs: 2500,
+            runs: 1500,
           },
         },
       },

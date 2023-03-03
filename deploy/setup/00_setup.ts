@@ -24,7 +24,9 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const dnsRegistrar = await ethers.getContract('DNSRegistrar', owner)
 
     const token = await ethers.getContractAt('FNSToken', await controller.token())
+    console.log('token:', token.address, ',controller.token():', await controller.token())
     const receiverAddress = await token.receiver()
+    console.log('receiverAddress:', receiverAddress)
     const receiver = await ethers.getContractAt('Receiver', receiverAddress)
     const sundayAddress = await token.sunday()
     const sunday = await ethers.getContractAt('Sunday', sundayAddress)
@@ -72,14 +74,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await send(root, 'setController', dnsRegistrar.address, true)
     await send(receiver, 'setController', '0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711', true)
     await send(dummyOracle, 'setController', '0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711', true)
-    
-    if (network.tags.test){
-        console.log('Set registrar of test')
 
-        const testRegistrar = await ethers.getContract('TestRegistrar')
-        await send(root, 'setSubnodeOwner', labelHash('test'), owner)
-        await send(root, 'setSubnodeOwner', labelhash('test'), testRegistrar.address)
-    }
+    console.log('Set registrar of test')
+
+    const testRegistrar = await ethers.getContract('TestRegistrar')
+    await send(root, 'setSubnodeOwner', labelHash('test'), owner)
+    await send(root, 'setSubnodeOwner', labelhash('test'), testRegistrar.address)
 
     return true
 }
@@ -100,6 +100,7 @@ func.dependencies = [
     'UniversalResolver',
     'dnssec-oracle',
     'dnsregistrar',
+    'TestUnwrap',
 ]
 
 export default func

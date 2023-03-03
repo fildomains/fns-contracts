@@ -85,7 +85,7 @@ contract('FNSToken', function () {
     return tx
   }
 
-  async function getWeek(){
+  async function getDay(){
     const blockNumber = await provider.getBlockNumber()
     const block = await provider.getBlock(blockNumber)
     const timestamp = block.timestamp * 1000;
@@ -244,10 +244,10 @@ contract('FNSToken', function () {
 
   it('it can only be pledged on sundays', async () => {
     await registerName('newconfigname')
-    var week = await getWeek();
+    var dayOfWeek = await getDay();
 
     //Monday
-    await evm.advanceTime((8 - week) * 24 * 3600)
+    await evm.advanceTime((8 - dayOfWeek) * 24 * 3600)
     await expect(
         token.pledge('1000000000000000000'),
     ).to.be.revertedWith('ERC20Pausable: token transfer while paused')
@@ -307,10 +307,10 @@ contract('FNSToken', function () {
 
   it('you cant collect your earnings on sundays', async () => {
     await registerName('newconfigname')
-    var week = await getWeek();
+    var dayOfWeek = await getDay();
 
     //Sunday
-    await evm.advanceTime((7 - week) * 24 * 3600)
+    await evm.advanceTime((7 - dayOfWeek) * 24 * 3600)
     await token.pledge('1000000000000000000')
     expect(
         (await token.balanceOf(ownerAccount)).toString(),
@@ -326,7 +326,7 @@ contract('FNSToken', function () {
     ).to.equal(Math.floor((REGISTRATION_TIME * 9) /10))
 
     await evm.advanceTime(24 * 3600)
-    week = await sunday.week()
+    const week = await sunday.week()
     await expect(
         sunday.claimEarnings(),
     ).to.emit(sunday, 'Earnings')
@@ -346,10 +346,10 @@ contract('FNSToken', function () {
     let baseCost = ethers.BigNumber.from(REGISTRATION_TIME)
     let balance = ethers.BigNumber.from('99000000000000000000')
     balance = balance.sub(baseCost)
-    var week = await getWeek();
+    var dayOfWeek = await getDay();
 
     //Sunday
-    await evm.advanceTime((7 - week) * 24 * 3600)
+    await evm.advanceTime((7 - dayOfWeek) * 24 * 3600)
     await token.pledge('1000000000000000000')
     expect(
         (await token.balanceOf(ownerAccount)).toString(),
@@ -372,7 +372,7 @@ contract('FNSToken', function () {
     ).to.equal(Math.floor(REGISTRATION_TIME /10))
 
     await evm.advanceTime(24 * 3600)
-    week = await sunday.week()
+    const week = await sunday.week()
     await expect(
         sunday.claimEarnings(),
     ).to.emit(sunday, 'Earnings')
