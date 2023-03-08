@@ -18,33 +18,33 @@ import {
   ReverseRegistrar,
   StablePriceOracle,
   TestRegistrar
-} from '@fnsdomains/fns-contracts'
+} from '@fildomains/fns-contracts'
 ```
 
 ## Importing from solidity
 
 ```
 // Registry
-import '@fnsdomains/fns-contracts/contracts/registry/FNS.sol';
-import '@fnsdomains/fns-contracts/contracts/registry/Registry.sol';
-import '@fnsdomains/fns-contracts/contracts/registry/ReverseRegistrar.sol';
-import '@fnsdomains/fns-contracts/contracts/registry/TestRegistrar.sol';
+import '@fildomains/fns-contracts/contracts/registry/FNS.sol';
+import '@fildomains/fns-contracts/contracts/registry/Registry.sol';
+import '@fildomains/fns-contracts/contracts/registry/ReverseRegistrar.sol';
+import '@fildomains/fns-contracts/contracts/registry/TestRegistrar.sol';
 // Registrar
-import '@fnsdomains/fns-contracts/contracts/registrar/BaseRegistrar.sol';
-import '@fnsdomains/fns-contracts/contracts/registrar/BaseRegistrarImplementation.sol';
-import '@fnsdomains/fns-contracts/contracts/registrar/BulkRenewal.sol';
-import '@fnsdomains/fns-contracts/contracts/registrar/RegistrarController.sol';
-import '@fnsdomains/fns-contracts/contracts/registrar/LinearPremiumPriceOracle.sol';
-import '@fnsdomains/fns-contracts/contracts/registrar/PriceOracle.sol';
-import '@fnsdomains/fns-contracts/contracts/registrar/StablePriceOracle.sol';
+import '@fildomains/fns-contracts/contracts/registrar/BaseRegistrar.sol';
+import '@fildomains/fns-contracts/contracts/registrar/BaseRegistrarImplementation.sol';
+import '@fildomains/fns-contracts/contracts/registrar/BulkRenewal.sol';
+import '@fildomains/fns-contracts/contracts/registrar/RegistrarController.sol';
+import '@fildomains/fns-contracts/contracts/registrar/LinearPremiumPriceOracle.sol';
+import '@fildomains/fns-contracts/contracts/registrar/PriceOracle.sol';
+import '@fildomains/fns-contracts/contracts/registrar/StablePriceOracle.sol';
 // Resolvers
-import '@fnsdomains/fns-contracts/contracts/resolvers/PublicResolver.sol';
-import '@fnsdomains/fns-contracts/contracts/resolvers/Resolver.sol';
+import '@fildomains/fns-contracts/contracts/resolvers/PublicResolver.sol';
+import '@fildomains/fns-contracts/contracts/resolvers/Resolver.sol';
 ```
 
 ##  Accessing to binary file.
 
-If your environment does not have compiler, you can access to the raw hardhat artifacts files at `node_modules/@fnsdomains/fns-contracts/artifacts/contracts/${modName}/${contractName}.sol/${contractName}.json`
+If your environment does not have compiler, you can access to the raw hardhat artifacts files at `node_modules/@fildomains/fns-contracts/artifacts/contracts/${modName}/${contractName}.sol/${contractName}.json`
 
 
 ## Contracts
@@ -76,7 +76,7 @@ Implementation of the `.test` registrar facilitates easy testing of FNS on the F
 
 ## Registrar
 
-Implements an [FNS](https://fnsdomains.com/) registrar intended for the .fil TLD.
+Implements an [FNS](https://fildomains.com/) registrar intended for the .fil TLD.
 
 ### BaseRegistrar
 
@@ -134,7 +134,7 @@ PublicResolver includes the following profiles that implements different EIPs.
 ### How to setup
 
 ```
-git clone https://github.com/fnsdomains/fns-contracts
+git clone https://github.com/fildomains/fns-contracts
 cd fns-contracts
 yarn
 ```
