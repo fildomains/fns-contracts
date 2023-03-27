@@ -16,11 +16,11 @@ contract TestRegistrar {
 
     /**
      * Constructor.
-     * @param ensAddr The address of the FNS registry.
+     * @param fnsAddr The address of the FNS registry.
      * @param node The node that this registrar administers.
      */
-    constructor(FNS ensAddr, bytes32 node) {
-        fns = ensAddr;
+    constructor(FNS fnsAddr, bytes32 node) {
+        fns = fnsAddr;
         rootNode = node;
     }
 

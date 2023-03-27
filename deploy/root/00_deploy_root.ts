@@ -1,6 +1,8 @@
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
+import { computeInterfaceId, send, labelhash} from '../../scripts/utils'
+import { namehash } from 'ethers/lib/utils'
 
 const ZERO_HASH =
   '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -58,11 +60,20 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       )
   }
 
+  if (owner != await registry.owner(namehash('reverse'))) {
+    await send(root.connect(await ethers.getSigner(owner)), 'setSubnodeOwner', labelhash('reverse'), owner)
+  }
+
+  if (owner != await registry.owner(namehash('addr.reverse'))) {
+    const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
+    await send(registry.connect(await ethers.getSigner(owner)), 'setSubnodeOwner', namehash('reverse'), labelhash('addr'), reverseRegistrar.address)
+  }
+
   return true
 }
 
 func.id = 'Root'
 func.tags = ['Root']
-func.dependencies = ['Registry']
+func.dependencies = ['ReverseRegistrar']
 
 export default func

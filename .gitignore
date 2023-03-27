@@ -5,8 +5,8 @@ gasreport-*
 .env
 .idea
 *.DS_Store
-node_modules
 build
 forge-cache
+ganache-db
 out
 deploy/.*

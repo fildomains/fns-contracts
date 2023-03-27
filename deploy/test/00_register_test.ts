@@ -7,6 +7,11 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {sleep, mine} from "../../scripts/utils";
 const { makeRegistrationData } = require('@ensdomains/ensjs/utils/registerHelpers')
 const { encodeFuses } = require('@ensdomains/ensjs/utils/fuses')
+
+import { toUtf8Bytes } from '@ethersproject/strings'
+import cbor from 'cbor'
+import pako from 'pako'
+
 import {labelhash, namehash} from '../../scripts/utils'
 
 const FUSES = {
@@ -510,6 +515,28 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             `register_test - ${records.contenthash} (tx: ${setContenthashTx.hash})...`,
         )
         await setContenthashTx.wait()
+      }
+
+      if (records.abi) {
+        console.log(`register_test Setting ABI for ${label}.fil...`)
+        let data
+        if (records.abi.contentType === 1 || records.abi.contentType === 256) {
+          data = JSON.stringify(records.abi.data)
+        } else if (records.abi.contentType === 2) {
+          data = pako.deflate(JSON.stringify(records.abi.data))
+        } else if (records.abi.contentType === 4) {
+          data = cbor.encode(records.abi.data)
+        } else {
+          data = records.abi.data as string
+        }
+        if (typeof data === 'string') data = toUtf8Bytes(data)
+        const setABITx = await _publicResolver.setABI(
+            hash,
+            records.abi.contentType,
+            data,
+        )
+        console.log(`register_test - ${records.abi.contentType} (tx: ${setABITx.hash})...`)
+        await setABITx.wait()
       }
     }
 

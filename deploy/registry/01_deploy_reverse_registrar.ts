@@ -3,7 +3,8 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import { keccak256 } from 'js-sha3'
-import {labelhash} from "../../scripts/utils";
+import {labelhash, send} from "../../scripts/utils";
+import {sha3} from "web3-utils";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { getNamedAccounts, deployments, network } = hre
@@ -17,11 +18,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [registry.address],
     log: true,
   });
-
 }
 
 func.id = 'ReverseRegistrar'
 func.tags = ['ReverseRegistrar']
-func.dependencies = ['Root']
+func.dependencies = ['Registry']
 
 export default func

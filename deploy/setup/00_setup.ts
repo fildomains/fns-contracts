@@ -5,8 +5,6 @@ import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {interfaces, computeInterfaceId, send, labelhash} from '../../scripts/utils'
 
-const labelHash = (label: string) => ethers.utils.keccak256(ethers.utils.toUtf8Bytes(label))
-
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { getNamedAccounts, deployments, network } = hre
     const { deploy } = deployments
@@ -35,13 +33,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await send(sunday, 'transferOwnership', token.address)
 
     console.log('Temporarily setting owner of fil tld to owner ')
-    await send(root, 'setSubnodeOwner', labelHash('fil'), owner)
+    await send(root, 'setSubnodeOwner', labelhash('fil'), owner)
 
     await send(registry, 'setSubnodeOwner', namehash('fil'), labelhash('data'), owner)
     await send(registry, 'setSubnodeOwner', namehash('data.fil'), labelhash('fil-usd'), owner)
-
-    await send(root, 'setSubnodeOwner', labelhash('reverse'), owner)
-    await send(registry, 'setSubnodeOwner', namehash('reverse'), labelhash('addr'), reverseRegistrar.address)
 
     const interfaces: Record<string, string> = {
         //IBaseRegistrar: registrar.address,
@@ -61,7 +56,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     }
 
     console.log('Set owner of fil tld back to registrar')
-    await send(root, 'setSubnodeOwner', labelHash('fil'), registrar.address)
+    await send(root, 'setSubnodeOwner', labelhash('fil'), registrar.address)
 
     console.log('Set registrar of fil resolver')
     await send(registrar, 'setResolver', resolver.address)
@@ -78,7 +73,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     console.log('Set registrar of test')
 
     const testRegistrar = await ethers.getContract('TestRegistrar')
-    await send(root, 'setSubnodeOwner', labelHash('test'), owner)
+    await send(root, 'setSubnodeOwner', labelhash('test'), owner)
     await send(root, 'setSubnodeOwner', labelhash('test'), testRegistrar.address)
 
     return true

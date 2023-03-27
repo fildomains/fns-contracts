@@ -20,11 +20,11 @@ contract FIFSRegistrar {
 
     /**
      * Constructor.
-     * @param ensAddr The address of the FNS registry.
+     * @param fnsAddr The address of the FNS registry.
      * @param node The node that this registrar administers.
      */
-    constructor(FNS ensAddr, bytes32 node) public {
-        fns = ensAddr;
+    constructor(FNS fnsAddr, bytes32 node) public {
+        fns = fnsAddr;
         rootNode = node;
     }
 

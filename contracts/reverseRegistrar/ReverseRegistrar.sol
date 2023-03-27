@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "./FNS.sol";
+import "../registry/FNS.sol";
 import "./IReverseRegistrar.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../root/Controllable.sol";
@@ -25,14 +25,14 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
 
     /**
      * @dev Constructor
-     * @param ensAddr The address of the FNS registry.
+     * @param fnsAddr The address of the FNS registry.
      */
-    constructor(FNS ensAddr) {
-        fns = ensAddr;
+    constructor(FNS fnsAddr) {
+        fns = fnsAddr;
 
         // Assign ownership of the reverse record to our deployer
         ReverseRegistrar oldRegistrar = ReverseRegistrar(
-            ensAddr.owner(ADDR_REVERSE_NODE)
+            fnsAddr.owner(ADDR_REVERSE_NODE)
         );
         if (address(oldRegistrar) != address(0x0)) {
             oldRegistrar.claim(msg.sender);

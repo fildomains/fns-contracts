@@ -10,6 +10,8 @@ const DummyOracle = artifacts.require('./DummyOracle')
 const StablePriceOracle = artifacts.require('./StablePriceOracle')
 const BulkRenewal = artifacts.require('./BulkRenewal')
 const NameWrapper = artifacts.require('./wrapper/NameWrapper.sol')
+const { deploy } = require('../test-utils/contracts')
+const { EMPTY_BYTES32: EMPTY_BYTES } = require('../test-utils/constants')
 
 const namehash = require('eth-ens-namehash')
 const sha3 = require('web3-utils').sha3
@@ -27,6 +29,7 @@ contract('BulkRenewal', function (accounts) {
   let priceOracle
   let bulkRenewal
   let nameWrapper
+  let reverseRegistrar
 
   const ownerAccount = accounts[0] // Account that owns the registrar
   const registrantAccount = accounts[1] // Account that owns test names
@@ -39,6 +42,18 @@ contract('BulkRenewal', function (accounts) {
     baseRegistrar = await BaseRegistrar.new(fns.address, namehash.hash('fil'), {
       from: ownerAccount,
     })
+
+    // Setup reverseRegistrar
+    reverseRegistrar = await deploy('ReverseRegistrar', fns.address)
+
+    await fns.setSubnodeOwner(EMPTY_BYTES, sha3('reverse'), accounts[0])
+    await fns.setSubnodeOwner(
+      namehash.hash('reverse'),
+      sha3('addr'),
+      reverseRegistrar.address,
+    )
+
+    // Create a name wrapper
 
     nameWrapper = await NameWrapper.new(
       fns.address,

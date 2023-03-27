@@ -53,6 +53,17 @@ contract('UniversalResolver', function (accounts) {
     node = namehash.hash('fil')
     fns = await deploy('Registry')
     nameWrapper = await deploy('DummyNameWrapper')
+    reverseRegistrar = await deploy('ReverseRegistrar', fns.address)
+    reverseNode = accounts[0].toLowerCase().substring(2) + '.addr.reverse'
+    await fns.setSubnodeOwner(EMPTY_BYTES32, sha3('reverse'), accounts[0], {
+      from: accounts[0],
+    })
+    await fns.setSubnodeOwner(
+      namehash.hash('reverse'),
+      sha3('addr'),
+      reverseRegistrar.address,
+      { from: accounts[0] },
+    )
     publicResolver = await deploy(
       'PublicResolver',
       fns.address,
@@ -64,8 +75,6 @@ contract('UniversalResolver', function (accounts) {
       'http://universal-offchain-resolver.local/',
     ])
     dummyOffchainResolver = await deploy('DummyOffchainResolver')
-    reverseRegistrar = await deploy('ReverseRegistrar', fns.address)
-    reverseNode = accounts[0].toLowerCase().substring(2) + '.addr.reverse'
 
     await fns.setSubnodeOwner(EMPTY_BYTES32, sha3('fil'), accounts[0], {
       from: accounts[0],
@@ -73,15 +82,6 @@ contract('UniversalResolver', function (accounts) {
     await fns.setSubnodeOwner(namehash.hash('fil'), sha3('test'), accounts[0], {
       from: accounts[0],
     })
-    await fns.setSubnodeOwner(EMPTY_BYTES32, sha3('reverse'), accounts[0], {
-      from: accounts[0],
-    })
-    await fns.setSubnodeOwner(
-      namehash.hash('reverse'),
-      sha3('addr'),
-      reverseRegistrar.address,
-      { from: accounts[0] },
-    )
     await fns.setResolver(namehash.hash('test.fil'), publicResolver.address, {
       from: accounts[0],
     })
@@ -152,6 +152,14 @@ contract('UniversalResolver', function (accounts) {
         dns.hexEncodeName('sub.test.fil'),
       )
       expect(result['0']).to.equal(accounts[1])
+    })
+    it('should allow encrypted labels', async () => {
+      const result = await universalResolver.callStatic.findResolver(
+        dns.hexEncodeName(
+          '[9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658].fil',
+        ),
+      )
+      expect(result['0']).to.equal(publicResolver.address)
     })
   })
 

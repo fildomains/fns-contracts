@@ -25,6 +25,11 @@ const RSASHA1Algorithm = require('./build/contracts/RSASHA1Algorithm')
 const SHA256Digest = require('./build/contracts/SHA256Digest')
 const SHA1Digest = require('./build/contracts/SHA1Digest')
 
+const FNSToken = require('./build/contracts/FNSToken')
+const Receiver = require('./build/contracts/Receiver')
+const Sunday = require('./build/contracts/Sunday')
+const NameWrapper = require('./build/contracts/NameWrapper')
+
 module.exports = {
   BaseRegistrarImplementation,
   BulkRenewal,
@@ -51,4 +56,8 @@ module.exports = {
   RSASHA1Algorithm,
   SHA256Digest,
   SHA1Digest,
+  FNSToken,
+  Receiver,
+  Sunday,
+  NameWrapper,
 }

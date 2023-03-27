@@ -11,15 +11,16 @@ const { ethers } = require('hardhat')
 const provider = ethers.provider
 const { namehash, encodeName} = require('../test-utils/ens')
 const sha3 = require('web3-utils').sha3
+const {
+  EMPTY_BYTES32: EMPTY_BYTES,
+  EMPTY_ADDRESS: ZERO_ADDRESS,
+} = require('../test-utils/constants')
 
 const DAYS = 24 * 60 * 60
 const REGISTRATION_TIME = 28 * DAYS
 const BUFFERED_REGISTRATION_COST = REGISTRATION_TIME + 3 * DAYS
-const NULL_ADDRESS = '0x0000000000000000000000000000000000000000'
-const EMPTY_BYTES =
-  '0x0000000000000000000000000000000000000000000000000000000000000000'
-const MAX_EXPIRY = 2n ** 64n - 1n
-const { ZERO_ADDRESS } = require('@openzeppelin/test-helpers/src/constants')
+const NULL_ADDRESS = ZERO_ADDRESS
+
 contract('FNSToken', function () {
   let fns
   let resolver
@@ -155,14 +156,21 @@ contract('FNSToken', function () {
       namehash('fil'),
     )
 
-    nameWrapper = await deploy(
-      'NameWrapper',
-      fns.address,
-      baseRegistrar.address,
-      ownerAccount,
+    reverseRegistrar = await deploy('ReverseRegistrar', fns.address)
+
+    await fns.setSubnodeOwner(EMPTY_BYTES, sha3('reverse'), accounts[0])
+    await fns.setSubnodeOwner(
+        namehash('reverse'),
+        sha3('addr'),
+        reverseRegistrar.address,
     )
 
-    reverseRegistrar = await deploy('ReverseRegistrar', fns.address)
+    nameWrapper = await deploy(
+        'NameWrapper',
+        fns.address,
+        baseRegistrar.address,
+        ownerAccount,
+    )
 
     await fns.setSubnodeOwner(EMPTY_BYTES, sha3('fil'), baseRegistrar.address)
 
@@ -177,6 +185,15 @@ contract('FNSToken', function () {
         {baseRegistrar, priceOracle, reverseRegistrar, nameWrapper}
     )
 
+    resolver = await deploy(
+        'PublicResolver',
+        fns.address,
+        nameWrapper.address,
+        controller.address,
+        reverseRegistrar.address,
+    )
+    await reverseRegistrar.setDefaultResolver(resolver.address)
+
     controller2 = controller.connect(signers[1])
 
     token = await ethers.getContractAt('FNSToken', await controller.token())
@@ -189,14 +206,6 @@ contract('FNSToken', function () {
     await nameWrapper.setController(controller.address, true)
     await baseRegistrar.addController(nameWrapper.address)
     await reverseRegistrar.setController(controller.address, true)
-
-    resolver = await deploy(
-      'PublicResolver',
-      fns.address,
-      nameWrapper.address,
-      controller.address,
-      reverseRegistrar.address,
-    )
 
     callData = [
       resolver.interface.encodeFunctionData('setAddr(bytes32,address)', [

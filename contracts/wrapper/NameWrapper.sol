@@ -7,6 +7,8 @@ import {INameWrapper, CANNOT_UNWRAP, CANNOT_BURN_FUSES, CANNOT_TRANSFER, CANNOT_
 import {INameWrapperUpgrade} from "./INameWrapperUpgrade.sol";
 import {IMetadataService} from "./IMetadataService.sol";
 import {FNS} from "../registry/FNS.sol";
+import {IReverseRegistrar} from "../reverseRegistrar/IReverseRegistrar.sol";
+import {ReverseClaimer} from "../reverseRegistrar/ReverseClaimer.sol";
 import {IBaseRegistrar} from "../registrar/IBaseRegistrar.sol";
 import {IERC721Receiver} from "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
@@ -32,7 +34,8 @@ contract NameWrapper is
     INameWrapper,
     Controllable,
     IERC721Receiver,
-    ERC20Recoverable
+    ERC20Recoverable,
+    ReverseClaimer
 {
     using BytesUtils for bytes;
 
@@ -57,12 +60,12 @@ contract NameWrapper is
         FNS _fns,
         IBaseRegistrar _registrar,
         IMetadataService _metadataService
-    ) {
+    ) ReverseClaimer(_fns, msg.sender) {
         fns = _fns;
         registrar = _registrar;
         metadataService = _metadataService;
 
-        /* Burn PARENT_CANNOT_CONTROL and CANNOT_UNWRAP fuses for ROOT_NODE and FIL_NODE */
+        /* Burn PARENT_CANNOT_CONTROL and CANNOT_UNWRAP fuses for ROOT_NODE and FIL_NODE and set expiry to max */
 
         _setData(
             uint256(FIL_NODE),
@@ -229,19 +232,6 @@ contract NameWrapper is
     }
 
     /**
-     * @notice Checks if msg.sender is the owner or approved
-     * @param node namehash of the name to check
-     */
-
-    modifier onlyTokenOwnerOrApproved(bytes32 node) {
-        if (!canModifySubnames(node, msg.sender)) {
-            revert Unauthorised(node, msg.sender);
-        }
-
-        _;
-    }
-
-    /**
      * @notice Checks if owner or operator of the owner
      * @param node namehash of the name to check
      * @param addr which address to check permissions for
@@ -265,7 +255,7 @@ contract NameWrapper is
      * @return whether or not is owner/operator or approved
      */
 
-    function canModifySubnames(
+    function canExtendSubnames(
         bytes32 node,
         address addr
     ) public view returns (bool) {
@@ -291,7 +281,7 @@ contract NameWrapper is
         address wrappedOwner,
         uint16 ownerControlledFuses,
         address resolver
-    ) public {
+    ) public returns (uint64 expiry) {
         uint256 tokenId = uint256(keccak256(bytes(label)));
         address registrant = registrar.ownerOf(tokenId);
         if (
@@ -310,7 +300,7 @@ contract NameWrapper is
         // transfer the fns record back to the new owner (this contract)
         registrar.reclaim(tokenId, address(this));
 
-        uint64 expiry = uint64(registrar.nameExpires(tokenId)) + GRACE_PERIOD;
+        expiry = uint64(registrar.nameExpires(tokenId)) + GRACE_PERIOD;
 
         _wrap2LD(
             label,
@@ -378,10 +368,10 @@ contract NameWrapper is
             return registrarExpiry;
         }
 
-        // set expiry in Wrapper
+        // Set expiry in Wrapper
         uint64 expiry = uint64(registrarExpiry) + GRACE_PERIOD;
 
-        //use super to allow names expired on the wrapper, but not expired on the registrar to renew()
+        // Use super to allow names expired on the wrapper, but not expired on the registrar to renew()
         (address owner, uint32 fuses, ) = super.getData(uint256(node));
         _setData(node, owner, fuses, expiry);
 
@@ -511,10 +501,14 @@ contract NameWrapper is
     ) public returns (uint64) {
         bytes32 node = _makeNode(parentNode, labelhash);
 
+        if (!_isWrapped(node)) {
+            revert NameIsNotWrapped();
+        }
+
         // this flag is used later, when checking fuses
-        bool canModifyParentSubname = canModifySubnames(parentNode, msg.sender);
+        bool canExtendSubname = canExtendSubnames(parentNode, msg.sender);
         // only allow the owner of the name or owner of the parent name
-        if (!canModifyParentSubname && !canModifyName(node, msg.sender)) {
+        if (!canExtendSubname && !canModifyName(node, msg.sender)) {
             revert Unauthorised(node, msg.sender);
         }
 
@@ -523,11 +517,11 @@ contract NameWrapper is
         );
 
         // Either CAN_EXTEND_EXPIRY must be set, or the caller must have permission to modify the parent name
-        if (!canModifyParentSubname && fuses & CAN_EXTEND_EXPIRY == 0) {
+        if (!canExtendSubname && fuses & CAN_EXTEND_EXPIRY == 0) {
             revert OperationProhibited(node);
         }
 
-        // max expiry is set to the expiry of the parent
+        // Max expiry is set to the expiry of the parent
         (, , uint64 maxExpiry) = getData(uint256(parentNode));
         expiry = _normaliseExpiry(expiry, oldExpiry, maxExpiry);
 
@@ -558,6 +552,8 @@ contract NameWrapper is
             uint256(node)
         );
 
+        address approved = getApproved(uint256(node));
+
         _burn(uint256(node));
 
         upgradeContract.wrapFromUpgrade(
@@ -565,12 +561,13 @@ contract NameWrapper is
             currentOwner,
             fuses,
             expiry,
+            approved,
             extraData
         );
     }
 
     /** 
-    /* @notice Sets fuses of a name that you own the parent of. Can also be called by the owner of a .fil name
+    /* @notice Sets fuses of a name that you own the parent of
      * @param parentNode Parent namehash of the name e.g. vitalik.xyz would be namehash('xyz')
      * @param labelhash Labelhash of the name, e.g. vitalik.xyz would be keccak256('vitalik')
      * @param fuses Fuses to burn
@@ -598,8 +595,8 @@ contract NameWrapper is
                 revert Unauthorised(node, msg.sender);
             }
         } else {
-            if (!canModifySubnames(parentNode, msg.sender)) {
-                revert Unauthorised(node, msg.sender);
+            if (!canModifyName(parentNode, msg.sender)) {
+                revert Unauthorised(parentNode, msg.sender);
             }
         }
 
@@ -634,7 +631,7 @@ contract NameWrapper is
         address owner,
         uint32 fuses,
         uint64 expiry
-    ) public onlyTokenOwnerOrApproved(parentNode) returns (bytes32 node) {
+    ) public onlyTokenOwner(parentNode) returns (bytes32 node) {
         bytes32 labelhash = keccak256(bytes(label));
         node = _makeNode(parentNode, labelhash);
         _checkCanCallSetSubnodeOwner(parentNode, node);
@@ -670,7 +667,7 @@ contract NameWrapper is
         uint64 ttl,
         uint32 fuses,
         uint64 expiry
-    ) public onlyTokenOwnerOrApproved(parentNode) returns (bytes32 node) {
+    ) public onlyTokenOwner(parentNode) returns (bytes32 node) {
         bytes32 labelhash = keccak256(bytes(label));
         node = _makeNode(parentNode, labelhash);
         _checkCanCallSetSubnodeOwner(parentNode, node);
