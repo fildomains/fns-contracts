@@ -29,7 +29,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Only attempt to make controller etc changes directly on testnets
   //if(network.name === 'mainnet') return;
 
-  if(!(await registrar.controllers(deployer))){
+  if(!(await registrar.controllers(nameWrapper.address))){
     const tx = await registrar.addController(nameWrapper.address, {
       from: deployer,
     })

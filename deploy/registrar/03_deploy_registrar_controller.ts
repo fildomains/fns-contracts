@@ -85,7 +85,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   // Only attempt to make controller etc changes directly on testnets
   //if(network.name === 'mainnet') return;
 
-  if(!(await nameWrapper.controllers(deployer))){
+  if(!(await nameWrapper.controllers(controller.address))){
     const tx1 = await nameWrapper.setController(controller.address, {
       from: deployer,
     })
@@ -95,7 +95,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     await tx1.wait()
   }
 
-  if(!(await nameWrapper.controllers(owner))){
+  if(!(await reverseRegistrar.controllers(controller.address))){
     const tx2 = await reverseRegistrar.setController(controller.address, {
       from: owner,
     })
