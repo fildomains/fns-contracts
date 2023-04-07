@@ -138,9 +138,9 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
         address resolver,
         string memory name
     ) public override returns (bytes32) {
-        bytes32 node = claimForAddr(addr, owner, resolver);
-        NameResolver(resolver).setName(node, name);
-        return node;
+        bytes32 _node = claimForAddr(addr, owner, resolver);
+        NameResolver(resolver).setName(_node, name);
+        return _node;
     }
 
     /**
@@ -157,7 +157,7 @@ contract ReverseRegistrar is Ownable, Controllable, IReverseRegistrar {
 
     /**
      * @dev An optimised function to compute the sha3 of the lower-case
-     *      hexadecimal representation of an Ethereum address.
+     *      hexadecimal representation of an Filecoin address.
      * @param addr The address to hash
      * @return ret The SHA3 hash of the lower-case hexadecimal encoding of the
      *         input address.

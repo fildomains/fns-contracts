@@ -14,7 +14,7 @@ contract DummyLegacyTextResolver is ITextResolver, IERC165 {
     function text(
         bytes32 /* node */,
         string calldata key
-    ) external view override returns (string memory) {
+    ) external pure override returns (string memory) {
         return key;
     }
 }

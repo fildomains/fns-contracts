@@ -10,7 +10,7 @@ abstract contract AddrResolver is
     IAddressResolver,
     ResolverBase
 {
-    uint256 private constant COIN_TYPE_ETH = 60;
+    uint256 private constant COIN_TYPE_FIL = 461;
 
     mapping(uint64 => mapping(bytes32 => mapping(uint256 => bytes))) versionable_addresses;
 
@@ -24,7 +24,7 @@ abstract contract AddrResolver is
         bytes32 node,
         address a
     ) external virtual authorised(node) {
-        setAddr(node, COIN_TYPE_ETH, addressToBytes(a));
+        setAddr(node, COIN_TYPE_FIL, addressToBytes(a));
     }
 
     /**
@@ -35,7 +35,7 @@ abstract contract AddrResolver is
     function addr(
         bytes32 node
     ) public view virtual override returns (address payable) {
-        bytes memory a = addr(node, COIN_TYPE_ETH);
+        bytes memory a = addr(node, COIN_TYPE_FIL);
         if (a.length == 0) {
             return payable(0);
         }
@@ -48,7 +48,7 @@ abstract contract AddrResolver is
         bytes memory a
     ) public virtual authorised(node) {
         emit AddressChanged(node, coinType, a);
-        if (coinType == COIN_TYPE_ETH) {
+        if (coinType == COIN_TYPE_FIL) {
             emit AddrChanged(node, bytesToAddress(a));
         }
         versionable_addresses[recordVersions[node]][node][coinType] = a;

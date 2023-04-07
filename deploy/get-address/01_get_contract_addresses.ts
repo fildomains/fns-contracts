@@ -13,11 +13,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   )
 
   await writeFile(
-    resolve(__dirname, `../.${network.name}.env.local`),
+    resolve(__dirname, `../.${network.name}.env`),
     `${JSON.stringify(deploymentAddressMap, null, 4)}`,
   )
 
-  console.log(`Wrote contract addresses to .${network.name}.env.local`)
+  console.log(`Wrote contract addresses to .${network.name}.env`)
 }
 
 func.runAtTheEnd = true

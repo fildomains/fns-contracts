@@ -11,7 +11,7 @@ contract Receiver is Controllable, IERC165 {
     receive() external payable{
     }
 
-    constructor(address _token) public {
+    constructor(address _token) {
         token = IERC20(_token);
     }
 

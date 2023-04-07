@@ -9,6 +9,7 @@ import "../dnssec-oracle/BytesUtils.sol";
 import "../dnssec-oracle/DNSSEC.sol";
 import "../dnssec-oracle/RRUtils.sol";
 import "../registry/Registry.sol";
+import "../utils/HexUtils.sol";
 
 error OffchainLookup(
     address sender,
@@ -31,6 +32,7 @@ uint16 constant TYPE_TXT = 16;
 contract OffchainDNSResolver is IExtendedResolver {
     using RRUtils for *;
     using BytesUtils for bytes;
+    using HexUtils for bytes;
 
     FNS public immutable fns;
     DNSSEC public immutable oracle;
@@ -89,7 +91,7 @@ contract OffchainDNSResolver is IExtendedResolver {
                 continue;
             }
 
-            // Look for a valid ENS-DNS TXT record
+            // Look for a valid FNS-DNS TXT record
             (address dnsresolver, bytes memory context) = parseRR(
                 iter.data,
                 iter.rdataOffset,

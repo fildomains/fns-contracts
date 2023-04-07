@@ -26,14 +26,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const root = await ethers.getContract('Root')
 
-  const tx1 = await registry.setOwner(ZERO_HASH, root.address)
-  console.log(
-    `Setting owner of root node to root contract (tx: ${tx1.hash})...`,
-  )
-  await tx1.wait()
+  if (root.address !== (await registry.owner(ZERO_HASH))) {
+    const tx1 = await registry.setOwner(ZERO_HASH, root.address)
+    console.log(
+        `Setting owner of root node to root contract (tx: ${tx1.hash})...`,
+    )
+    await tx1.wait()
+  }
 
   const rootOwner = await root.owner()
-
   switch (rootOwner) {
     case deployer:
       const tx2 = await root
@@ -60,12 +61,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       )
   }
 
-  if (owner != await registry.owner(namehash('reverse'))) {
-    await send(root.connect(await ethers.getSigner(owner)), 'setSubnodeOwner', labelhash('reverse'), owner)
-  }
+  const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
+  if (reverseRegistrar.address !== (await registry.owner(namehash('addr.reverse')))) {
+    if (owner != await registry.owner(namehash('reverse'))) {
+      await send(root.connect(await ethers.getSigner(owner)), 'setSubnodeOwner', labelhash('reverse'), owner)
+    }
 
-  if (owner != await registry.owner(namehash('addr.reverse'))) {
-    const reverseRegistrar = await ethers.getContract('ReverseRegistrar')
     await send(registry.connect(await ethers.getSigner(owner)), 'setSubnodeOwner', namehash('reverse'), labelhash('addr'), reverseRegistrar.address)
   }
 

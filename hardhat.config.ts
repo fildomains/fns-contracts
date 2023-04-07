@@ -76,6 +76,13 @@ const config: HardhatUserConfig = {
       saveDeployments: true,
       accounts: real_accounts,
     },
+    calibration: {
+      url: `https://api.calibration.node.glif.io/rpc/v1`,
+      tags: ['test', 'use_root'],
+      chainId: 314159,
+      saveDeployments: true,
+      accounts: real_accounts,
+    },
   },
   mocha: {
     timeout: 4000000
@@ -120,6 +127,7 @@ const config: HardhatUserConfig = {
     owner2: {
       default: 2,
     },
+    owner3: 3,
   },
   external: {
     contracts: [

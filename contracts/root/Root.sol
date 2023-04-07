@@ -16,7 +16,7 @@ contract Root is Ownable, Controllable {
     FNS public fns;
     mapping(bytes32 => bool) public locked;
 
-    constructor(FNS _fns) public {
+    constructor(FNS _fns) {
         fns = _fns;
     }
 

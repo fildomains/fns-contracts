@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
-import { hexEncodeName } from '@ensdomains/ensjs/utils/hexEncodedName'
+import { hexEncodeName } from '@fildomains/fnsjs/utils/hexEncodedName'
 
 const tld_map = {
   mainnet: ['xyz'],

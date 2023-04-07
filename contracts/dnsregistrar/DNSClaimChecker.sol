@@ -4,10 +4,12 @@ pragma solidity ^0.8.17;
 import "../dnssec-oracle/DNSSEC.sol";
 import "../dnssec-oracle/BytesUtils.sol";
 import "../dnssec-oracle/RRUtils.sol";
-import "@ensdomains/buffer/contracts/Buffer.sol";
+import "../utils/HexUtils.sol";
+import "../utils/Buffer.sol";
 
 library DNSClaimChecker {
     using BytesUtils for bytes;
+    using HexUtils for bytes;
     using RRUtils for *;
     using Buffer for Buffer.buffer;
 

@@ -7,7 +7,7 @@ import "../root/Controllable.sol";
 contract DummyOracle is Controllable, IERC165 {
     int256 value;
 
-    constructor(int256 _value) public {
+    constructor(int256 _value) {
         value = _value;
     }
 

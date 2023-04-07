@@ -170,7 +170,7 @@ contract RegistrarController is
         );
     }
 
-    function mintAmount(uint256 number) public view returns (uint256)
+    function mintAmount(uint256 number) public pure returns (uint256)
     {
         if(number < maxMint){
             return (1 + ((99 * (maxMint - number)) / maxMint))  * 1e18;

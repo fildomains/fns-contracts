@@ -10,3 +10,4 @@ forge-cache
 ganache-db
 out
 deploy/.*
+deployments

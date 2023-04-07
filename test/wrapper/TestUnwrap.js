@@ -71,7 +71,7 @@ describe('TestUnwrap', () => {
       BaseRegistrar.address,
     )
 
-    // setup .eth
+    // setup .fil
     await Registry.setSubnodeOwner(
       ROOT_NODE,
       labelhash('fil'),

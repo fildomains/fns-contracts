@@ -23,7 +23,7 @@ contract FIFSRegistrar {
      * @param fnsAddr The address of the FNS registry.
      * @param node The node that this registrar administers.
      */
-    constructor(FNS fnsAddr, bytes32 node) public {
+    constructor(FNS fnsAddr, bytes32 node) {
         fns = fnsAddr;
         rootNode = node;
     }

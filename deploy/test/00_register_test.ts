@@ -5,8 +5,8 @@ import { ethers } from 'hardhat'
 import { DeployFunction } from 'hardhat-deploy/types'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 import {sleep, mine} from "../../scripts/utils";
-const { makeRegistrationData } = require('@ensdomains/ensjs/utils/registerHelpers')
-const { encodeFuses } = require('@ensdomains/ensjs/utils/fuses')
+const { makeRegistrationData } = require('@fildomains/fnsjs/utils/registerHelpers')
+const { encodeFuses } = require('@fildomains/fnsjs/utils/fuses')
 
 import { toUtf8Bytes } from '@ethersproject/strings'
 import cbor from 'cbor'
@@ -152,7 +152,7 @@ const names: {
   namedAddr: string
   reverseRecord?: boolean
   wrapped?: boolean
-  duration?: number
+  duration?: number | BigNumber
   fuses?: number
   records?: {
     text?: {
@@ -173,7 +173,7 @@ const names: {
     label: string
     namedOwner: string
     fuses?: number
-    expiry?: number
+    expiry?: number | BigNumber
   }[]
 }[] = [
   {
@@ -204,6 +204,20 @@ const names: {
     duration: 2419200,
   },
   {
+    label: 'wrapped-big-duration',
+    namedOwner: 'owner3',
+    namedAddr: 'owner',
+    wrapped: true,
+    duration: Math.floor((8640000000000000 - Date.now()) / 1000),
+  },
+  {
+    label: 'wrapped-max-duration',
+    namedOwner: 'owner3',
+    namedAddr: 'owner',
+    wrapped: true,
+    duration: BigNumber.from('18446744073709'),
+  },
+  {
     label: 'wrapped-with-expiring-subnames',
     namedOwner: 'owner',
     namedAddr: 'owner',
@@ -228,6 +242,7 @@ const names: {
         label: 'recent-pcc',
         namedOwner: 'owner2',
         expiry: Math.floor(Date.now() / 1000),
+        fuses: 0,
       },
     ],
   },
@@ -438,7 +453,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     let registrationData = makeRegistrationData({ owner, name: `${label}.fil`, duration, reverseRecord, fuses,
       resolver: publicResolver,
-      records : !reverseRecord ? { coinTypes: [{ key: "ETH", value: registrant}] } : null,
+      records : !reverseRecord ? { coinTypes: [{ key: "FIL", value: registrant}] } : null,
       secret,
     })
 
@@ -582,6 +597,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         }
       }
     }
+  }
+
+  for(let i = 0; i < 20; i++) {
+    await mine(network.provider)
   }
 
   return true

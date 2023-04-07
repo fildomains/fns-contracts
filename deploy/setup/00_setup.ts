@@ -29,52 +29,88 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const sundayAddress = await token.sunday()
     const sunday = await ethers.getContractAt('Sunday', sundayAddress)
 
-    await send(token, 'transferOwnership', controller.address)
-    await send(sunday, 'transferOwnership', token.address)
-
-    console.log('Temporarily setting owner of fil tld to owner ')
-    await send(root, 'setSubnodeOwner', labelhash('fil'), owner)
-
-    await send(registry, 'setSubnodeOwner', namehash('fil'), labelhash('data'), owner)
-    await send(registry, 'setSubnodeOwner', namehash('data.fil'), labelhash('fil-usd'), owner)
-
-    const interfaces: Record<string, string> = {
-        //IBaseRegistrar: registrar.address,
-        IRegistrarController: controller.address,
-        IBulkRenewal: bulkRenewal.address,
-        NameWrapper: nameWrapper.address
+    if(controller.address !== (await token.owner())){
+        await send(token, 'transferOwnership', controller.address)
+    }
+    if(token.address !== (await sunday.owner())){
+        await send(sunday, 'transferOwnership', token.address)
     }
 
-    const names = Object.keys(interfaces)
-    for(let i = 0; i < names.length; i++){
-        const name = names[i];
-        const artifact = await deployments.getArtifact(name);
-        const interfaceId = computeInterfaceId(new Interface(artifact.abi));
+    if (registrar.address !== (await registry.owner( namehash('fil')))){
+        console.log('Temporarily setting owner of fil tld to owner ')
 
-        console.log(`Set interface implementor of fil tld for registrar controller name:${name},interfaceId:${interfaceId},address:${interfaces[name]}`)
-        await send(resolver, 'setInterface', namehash('fil'), interfaceId, interfaces[name])
+        if (owner !== (await registry.owner( namehash('fil')))) {
+            await send(root, 'setSubnodeOwner', labelhash('fil'), owner)
+        }
+
+        if (owner !== (await registry.owner( namehash('data.fil')))) {
+            await send(registry, 'setSubnodeOwner', namehash('fil'), labelhash('data'), owner)
+        }
+        if (owner !== (await registry.owner( namehash('fil-usd.data.fil')))) {
+            await send(registry, 'setSubnodeOwner', namehash('data.fil'), labelhash('fil-usd'), owner)
+        }
+
+        const interfaces: Record<string, string> = {
+            //IBaseRegistrar: registrar.address,
+            IRegistrarController: controller.address,
+            IBulkRenewal: bulkRenewal.address,
+            NameWrapper: nameWrapper.address
+        }
+
+        const names = Object.keys(interfaces)
+        for(let i = 0; i < names.length; i++){
+            const name = names[i];
+            const artifact = await deployments.getArtifact(name);
+            const interfaceId = computeInterfaceId(new Interface(artifact.abi));
+
+            if(interfaces[name] !== (await resolver.interfaceImplementer(namehash('fil'), interfaceId))) {
+                console.log(`Set interface implementor of fil tld for registrar controller name:${name},interfaceId:${interfaceId},address:${interfaces[name]}`)
+                await send(resolver, 'setInterface', namehash('fil'), interfaceId, interfaces[name])
+            }
+        }
+
+        console.log('Set owner of fil tld back to registrar')
+        await send(root, 'setSubnodeOwner', labelhash('fil'), registrar.address)
     }
 
-    console.log('Set owner of fil tld back to registrar')
-    await send(root, 'setSubnodeOwner', labelhash('fil'), registrar.address)
+    if(resolver.address !== (await registry.resolver(namehash('fil')))){
+        console.log('Set registrar of fil resolver')
+        await send(registrar, 'setResolver', resolver.address)
+    }
 
-    console.log('Set registrar of fil resolver')
-    await send(registrar, 'setResolver', resolver.address)
+    if(resolver.address !== (await reverseRegistrar.defaultResolver())) {
+        console.log(`Setting default resolver on ReverseRegistrar to PublicResolver ...`)
+        await send(reverseRegistrar, 'setDefaultResolver', resolver.address)
+    }
 
-    await send(reverseRegistrar, 'setDefaultResolver', resolver.address)
-    console.log(`Setting default resolver on ReverseRegistrar to PublicResolver ...`)
+    if(dummyOracle.address !== (await resolver['addr(bytes32)'](namehash('fil-usd.data.fil')))) {
+        await send(resolver, 'setAddr(bytes32,address)', namehash('fil-usd.data.fil'), dummyOracle.address)
+    }
 
-    await send(resolver, 'setAddr(bytes32,address)', namehash('fil-usd.data.fil'), dummyOracle.address)
+    if(!(await root.controllers(dnsRegistrar.address))) {
+        await send(root, 'setController', dnsRegistrar.address, true)
+    }
 
-    await send(root, 'setController', dnsRegistrar.address, true)
-    await send(receiver, 'setController', '0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711', true)
-    await send(dummyOracle, 'setController', '0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711', true)
-
-    console.log('Set registrar of test')
+    const controllers = ['0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711']
+    for(const i in controllers) {
+        const addr = controllers[i]
+        if(!(await receiver.controllers(addr))) {
+            await send(receiver, 'setController', addr, true)
+        }
+        if(!(await dummyOracle.controllers(addr))) {
+            await send(dummyOracle, 'setController', addr, true)
+        }
+    }
 
     const testRegistrar = await ethers.getContract('TestRegistrar')
-    await send(root, 'setSubnodeOwner', labelhash('test'), owner)
-    await send(root, 'setSubnodeOwner', labelhash('test'), testRegistrar.address)
+    if (testRegistrar.address !== (await registry.owner( namehash('test')))) {
+        console.log('Set registrar of test')
+
+        if (owner !== (await registry.owner( namehash('test')))) {
+            await send(root, 'setSubnodeOwner', labelhash('test'), owner)
+        }
+        await send(root, 'setSubnodeOwner', labelhash('test'), testRegistrar.address)
+    }
 
     return true
 }

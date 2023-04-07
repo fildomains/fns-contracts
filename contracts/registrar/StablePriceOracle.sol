@@ -91,21 +91,21 @@ contract StablePriceOracle is IPriceOracle, Ownable {
      * @dev Returns the pricing premium in internal base units.
      */
     function _premium(
-        string memory name,
-        uint256 expires,
-        uint256 duration
+        string memory,
+        uint256,
+        uint256
     ) internal view virtual returns (uint256) {
         return 0;
     }
 
     function attoUSDToWei(uint256 amount) internal view returns (uint256) {
-        uint256 ethPrice = uint256(usdOracle.latestAnswer());
-        return (amount * 1e8) / ethPrice;
+        uint256 filPrice = uint256(usdOracle.latestAnswer());
+        return (amount * 1e8) / filPrice;
     }
 
     function weiToAttoUSD(uint256 amount) internal view returns (uint256) {
-        uint256 ethPrice = uint256(usdOracle.latestAnswer());
-        return (amount * ethPrice) / 1e8;
+        uint256 filPrice = uint256(usdOracle.latestAnswer());
+        return (amount * filPrice) / 1e8;
     }
 
     function supportsInterface(

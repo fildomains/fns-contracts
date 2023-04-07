@@ -7,7 +7,7 @@ pragma solidity ^0.8.17;
 contract TestResolver {
     mapping(bytes32 => address) addresses;
 
-    constructor() public {}
+    constructor() {}
 
     function supportsInterface(bytes4 interfaceID) public pure returns (bool) {
         return interfaceID == 0x01ffc9a7 || interfaceID == 0x3b3b57de;
@@ -17,7 +17,7 @@ contract TestResolver {
         return addresses[node];
     }
 
-    function setAddr(bytes32 node, address addr) public {
-        addresses[node] = addr;
+    function setAddr(bytes32 node, address _addr) public {
+        addresses[node] = _addr;
     }
 }
