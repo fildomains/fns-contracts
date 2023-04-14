@@ -196,6 +196,10 @@ contract Multicall {
         balance = addr.balance;
     }
 
+    function getBalance(address addr) public view returns (uint256 balance) {
+        balance = addr.balance;
+    }
+
     /// @notice Returns the block hash of the last block
     function getLastBlockHash() public view returns (bytes32 blockHash) {
     unchecked {

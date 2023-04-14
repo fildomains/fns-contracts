@@ -58,23 +58,23 @@ contract Sunday is ERC20Pausable, Ownable, IERC165 {
     }
 
     function initShare() public whenPaused returns (uint64) {
-        uint64 w = week();
-        require(_shares[w].inited == false, "SUN: inined");
+        uint64 _week = week();
+        require(_shares[_week].inited == false, "SUN: inined");
 
-        return _initShare(w);
+        return _initShare(_week);
     }
 
-    function _initShare(uint64 w) internal returns (uint64) {
-        if(_shares[w].inited  == false){
+    function _initShare(uint64 _week) internal returns (uint64) {
+        if(_shares[_week].inited  == false){
             uint256 fil = address(this).balance / 64;
 
             require(token.balanceOf(address (this)) >= totalSupply(), "SUN: share must have");
             uint256 fnsAmount = (token.balanceOf(address (this)) - totalSupply()) / 64;
-            _shares[w] = share({fil: fil, fns: fnsAmount, inited: true});
-            emit Init(w, fil, fnsAmount);
+            _shares[_week] = share({fil: fil, fns: fnsAmount, inited: true});
+            emit Init(_week, fil, fnsAmount);
         }
 
-        return w;
+        return _week;
     }
 
     function week() view public returns (uint64){
@@ -97,42 +97,42 @@ contract Sunday is ERC20Pausable, Ownable, IERC165 {
         token.transfer(msg.sender, amount);
     }
 
-    function getShare(uint64 w)
+    function getShare(uint64 _week)
         external
         view
         returns (share memory)
     {
-        return _shares[w];
+        return _shares[0 == _week ? week() : _week];
     }
 
-    function getEarnings(uint64 w, address addr)
+    function getEarnings(uint64 _week, address addr)
         external
         view
         returns (share memory)
     {
-        return _earnings[w][addr];
+        return _earnings[0 == _week ? week() : _week][addr];
     }
 
     function claimEarnings()
         external
         whenPaused
     {
-        uint64 w = week();
-        _initShare(w);
-        require(_earnings[w][_msgSender()].inited == false, "SUN: already claim earnings");
+        uint64 _week = week();
+        _initShare(_week);
+        require(_earnings[_week][_msgSender()].inited == false, "SUN: already claim earnings");
 
-        uint256 fil = (_shares[w].fil * balanceOf(_msgSender())) / totalSupply();
+        uint256 fil = (_shares[_week].fil * balanceOf(_msgSender())) / totalSupply();
         if(fil > 0){
             payable(address (_msgSender())).transfer(fil);
         }
 
-        uint256 fnsAmount = (_shares[w].fns * balanceOf(_msgSender())) / totalSupply();
+        uint256 fnsAmount = (_shares[_week].fns * balanceOf(_msgSender())) / totalSupply();
         if(fnsAmount > 0){
             token.transfer(_msgSender(), fnsAmount);
         }
 
-        _earnings[w][_msgSender()] = share({fil: fil, fns: fnsAmount, inited: true});
-        emit Earnings(_msgSender(), w, fil, fnsAmount);
+        _earnings[_week][_msgSender()] = share({fil: fil, fns: fnsAmount, inited: true});
+        emit Earnings(_msgSender(), _week, fil, fnsAmount);
     }
 
     function supportsInterface(bytes4 interfaceID)

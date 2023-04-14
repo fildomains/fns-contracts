@@ -453,7 +453,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
     let registrationData = makeRegistrationData({ owner, name: `${label}.fil`, duration, reverseRecord, fuses,
       resolver: publicResolver,
-      records : !reverseRecord ? { coinTypes: [{ key: "FIL", value: registrant}] } : null,
+      records : !reverseRecord ? { coinTypes: [{ key: "ETH", value: registrant}] } : null,
       secret,
     })
 
