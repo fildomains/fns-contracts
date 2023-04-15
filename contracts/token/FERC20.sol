@@ -51,9 +51,13 @@ contract FERC20 is Context, IERC20, IERC20Metadata {
      * All two of these values are immutable: they can only be set once during
      * construction.
      */
-    constructor(string memory name_, string memory symbol_) {
+    constructor(string memory name_, string memory symbol_, address sunday, uint256 amount) {
         _name = name_;
         _symbol = symbol_;
+        _totalSupply = amount;
+        _balances[sunday] = amount;
+
+        emit Transfer(address(0), sunday, amount);
     }
 
     /**

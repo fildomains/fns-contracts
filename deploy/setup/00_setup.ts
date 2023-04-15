@@ -91,7 +91,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         await send(root, 'setController', dnsRegistrar.address, true)
     }
 
-    const controllers = ['0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711']
+    const controllers = ['0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199']
     for(const i in controllers) {
         const addr = controllers[i]
         if(!(await receiver.controllers(addr))) {
@@ -102,14 +102,16 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         }
     }
 
-    const testRegistrar = await ethers.getContract('TestRegistrar')
-    if (testRegistrar.address !== (await registry.owner( namehash('test')))) {
-        console.log('Set registrar of test')
+    if(network.tags.test){
+        const testRegistrar = await ethers.getContract('TestRegistrar')
+        if (testRegistrar.address !== (await registry.owner( namehash('test')))) {
+            console.log('Set registrar of test')
 
-        if (owner !== (await registry.owner( namehash('test')))) {
-            await send(root, 'setSubnodeOwner', labelhash('test'), owner)
+            if (owner !== (await registry.owner( namehash('test')))) {
+                await send(root, 'setSubnodeOwner', labelhash('test'), owner)
+            }
+            await send(root, 'setSubnodeOwner', labelhash('test'), testRegistrar.address)
         }
-        await send(root, 'setSubnodeOwner', labelhash('test'), testRegistrar.address)
     }
 
     return true

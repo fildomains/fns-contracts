@@ -43,7 +43,7 @@ contract RegistrarController is
     uint256 public constant MIN_REGISTRATION_DURATION = 28 days;
     bytes32 private constant FIL_NODE =
         0x78f6b1389af563cc5c91f234ea46b055e49658d8b999eeb9e0baef7dbbc93fdb;
-    uint32 constant maxMint = 1980198;
+    uint32 constant maxMint = 1900000;
     uint32 public minted;
     uint64 private constant MAX_EXPIRY = type(uint64).max;
     BaseRegistrarImplementation immutable base;
@@ -173,7 +173,7 @@ contract RegistrarController is
     function mintAmount(uint256 number) public pure returns (uint256)
     {
         if(number < maxMint){
-            return (1 + ((99 * (maxMint - number)) / maxMint))  * 1e18;
+            return ((maxMint - number)  * 1e20) / maxMint;
         }
 
         return 0;

@@ -35,7 +35,7 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
      * @dev Constructor.
      */
     constructor(address _controller, address payable _sunday, address payable _receiver)
-        FERC20("Filecoin Name Service", "FNS")
+        FERC20("Filecoin Name Service", "FNS", _sunday, 5000000 * 1e18)
         FERC20Permit("Filecoin Name Service")
     {
         controller = IRegistrarControllerFns(_controller);
@@ -61,7 +61,9 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
      * @param amount The quantity of tokens to mint.
      */
     function mint(address dest, uint256 amount) external onlyOwner {
-        _mint(dest, amount);
+        uint256 award = amount / 10;
+        _mint(address(receiver), award);
+        _mint(dest, amount - award);
     }
 
     function rentPrice(string memory name, uint256 duration)
@@ -166,32 +168,6 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
         return (expires, labelhash);
     }
 
-    // The following functions are overrides required by Solidity.
-    function _afterTokenTransfer(address from, address to, uint256 amount)
-        internal
-        override(FERC20, FERC20Votes)
-    {
-        super._afterTokenTransfer(from, to, amount);
-
-        if(to == address(sunday)){
-            sunday.mint(from, amount);
-        }
-    }
-
-    function _mint(address to, uint256 amount)
-        internal
-        override(FERC20, FERC20Votes)
-    {
-        super._mint(to, amount);
-    }
-
-    function _burn(address account, uint256 amount)
-        internal
-        override(FERC20, FERC20Votes)
-    {
-        super._burn(account, amount);
-    }
-
     function rentPrice(string[] calldata names, uint256 duration)
         external
         view
@@ -245,5 +221,32 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
             interfaceID == type(IERC20Permit).interfaceId ||
             interfaceID == type(IERC20Metadata).interfaceId ||
             interfaceID == type(IBulkRenewal).interfaceId;
+    }
+
+    // The following functions are overrides required by Solidity.
+
+    function _afterTokenTransfer(address from, address to, uint256 amount)
+        internal
+        override(FERC20, FERC20Votes)
+    {
+        super._afterTokenTransfer(from, to, amount);
+
+        if(to == address(sunday)){
+            sunday.mint(from, amount);
+        }
+    }
+
+    function _mint(address to, uint256 amount)
+        internal
+        override(FERC20, FERC20Votes)
+    {
+        super._mint(to, amount);
+    }
+
+    function _burn(address account, uint256 amount)
+        internal
+        override(FERC20, FERC20Votes)
+    {
+        super._burn(account, amount);
     }
 }
