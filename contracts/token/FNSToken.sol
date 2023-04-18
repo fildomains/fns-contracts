@@ -35,7 +35,7 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
      * @dev Constructor.
      */
     constructor(address _controller, address payable _sunday, address payable _receiver)
-        FERC20("Filecoin Name Service", "FNS", _sunday, 5000000 * 1e18)
+        FERC20("Filecoin Name Service", "FNS")
         FERC20Permit("Filecoin Name Service")
     {
         controller = IRegistrarControllerFns(_controller);
@@ -61,9 +61,10 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
      * @param amount The quantity of tokens to mint.
      */
     function mint(address dest, uint256 amount) external onlyOwner {
-        uint256 award = amount / 10;
+        uint256 award = amount / 20;
         _mint(address(receiver), award);
-        _mint(dest, amount - award);
+        _mint(address(sunday), award * 5);
+        _mint(dest, amount - (award * 6));
     }
 
     function rentPrice(string memory name, uint256 duration)
