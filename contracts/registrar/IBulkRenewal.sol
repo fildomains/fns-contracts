@@ -4,7 +4,7 @@ interface IBulkRenewal {
     function rentPrice(
         string[] calldata names,
         uint256 duration
-    ) external view returns (uint256 total);
+    ) external view returns (uint256 total, uint256 totalFns);
 
     function renewAll(
         string[] calldata names,

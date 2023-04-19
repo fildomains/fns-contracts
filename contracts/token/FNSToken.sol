@@ -173,7 +173,7 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
         external
         view
         override
-        returns (uint256 total)
+        returns (uint256 total, uint256 totalFns)
     {
         uint256 length = names.length;
         for (uint256 i = 0; i < length; ) {
@@ -183,7 +183,8 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
             );
             unchecked {
                 ++i;
-                total += (price.basePrice + price.premiumPrice);
+                total += (price.base + price.premium);
+                totalFns += (price.basePrice + price.premiumPrice);
             }
         }
     }

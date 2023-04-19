@@ -112,9 +112,14 @@ contract('BulkRenewal', function (accounts) {
   })
 
   it('should return the cost of a bulk renewal', async () => {
+    const result = await bulkRenewal.rentPrice(['test1', 'test2'], 86400)
     assert.equal(
-      await bulkRenewal.rentPrice(['test1', 'test2'], 86400),
-      86400 * 2,
+        result[0],
+        86400 * 2,
+    )
+    assert.equal(
+        result[1],
+        86400 * 2,
     )
   })
 

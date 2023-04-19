@@ -596,13 +596,18 @@ contract('FNSToken', function () {
 
      expect((await token['rentPrice(string,uint256)'](
         'newconfigname1',
-        DAYS
+         DAYS
     ))[2].toString()).to.be.equal(DAYS.toString())
 
-    expect((await token['rentPrice(string[],uint256)'](
+    let result = await token['rentPrice(string[],uint256)'](
         ['newconfigname1', 'newconfigname2'],
         DAYS
-    ))).to.be.equal((DAYS * 2).toString())
+    )
+
+    console.log('result:', result)
+
+    expect(result[0]).to.be.equal(DAYS * 2)
+    expect(result[1]).to.be.equal(DAYS * 2)
   })
 
   it('the function renew of FNSToken can be called directly', async () => {

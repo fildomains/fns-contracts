@@ -34,7 +34,7 @@ contract BulkRenewal is IBulkRenewal, IERC165 {
     function rentPrice(
         string[] calldata names,
         uint256 duration
-    ) external view override returns (uint256 total) {
+    ) external view override returns (uint256 total, uint256 totalFns) {
         RegistrarController controller = getController();
         uint256 length = names.length;
         for (uint256 i = 0; i < length; ) {
@@ -45,6 +45,7 @@ contract BulkRenewal is IBulkRenewal, IERC165 {
             unchecked {
                 ++i;
                 total += (price.base + price.premium);
+                totalFns += (price.basePrice + price.premiumPrice);
             }
         }
     }
