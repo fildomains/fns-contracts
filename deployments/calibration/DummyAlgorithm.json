@@ -1,0 +1,71 @@
+{
+  "address": "0x9bFdFf147E855EABc256F6Ff789ef044F21178D8",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "verify",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x8d4a3ce6116aa691bedd2a5e8222c7e7fc6b7a64199c79403200b08dee4da367",
+  "receipt": {
+    "to": null,
+    "from": "0x69b67e3ABA57dEC064483e172b8cB44c03DA9549",
+    "contractAddress": "0x9bFdFf147E855EABc256F6Ff789ef044F21178D8",
+    "transactionIndex": 0,
+    "gasUsed": "35159485",
+    "logsBloom": "0x8008088010000001000002000000212000000080150022228180204058401040000010820000000040820004000804088000402000015000440804000012a05100002088880200004800244a02a00400090101200500104804052005000000800802004002080800000001020300c800028000200029100800000018001290600001000000400002100144020080000000000080018008200004800045c0400020021000000a000008000812842100000004000000000801008000240000000001020112212001004012002000005000401001000088002440400000024020504001000f40010240001200040001010500200000019002049100090210000400",
+    "blockHash": "0xa0ae8a7d1c1ea1b0b2c0a43990c4d6c0d35cf9233c592cc92a821615380b41a3",
+    "transactionHash": "0x8d4a3ce6116aa691bedd2a5e8222c7e7fc6b7a64199c79403200b08dee4da367",
+    "logs": [],
+    "blockNumber": 494021,
+    "cumulativeGasUsed": "0",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [],
+  "numDeployments": 1,
+  "solcInputHash": "94c511ccef30681c8028349b05f9c84f",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"name\":\"verify\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"pure\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Implements a dummy DNSSEC (signing) algorithm that approves all      signatures, for testing.\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/dnssec-oracle/algorithms/DummyAlgorithm.sol\":\"DummyAlgorithm\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1500},\"remappings\":[]},\"sources\":{\"contracts/dnssec-oracle/algorithms/Algorithm.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.17;\\n\\n/**\\n * @dev An interface for contracts implementing a DNSSEC (signing) algorithm.\\n */\\ninterface Algorithm {\\n    /**\\n     * @dev Verifies a signature.\\n     * @param key The public key to verify with.\\n     * @param data The signed data to verify.\\n     * @param signature The signature to verify.\\n     * @return True iff the signature is valid.\\n     */\\n    function verify(\\n        bytes calldata key,\\n        bytes calldata data,\\n        bytes calldata signature\\n    ) external view returns (bool);\\n}\\n\",\"keccak256\":\"0x3e7bbfac958f072bfc57e724ec519066f739ca3b67e64bf614efca3ddf75bdfc\",\"license\":\"MIT\"},\"contracts/dnssec-oracle/algorithms/DummyAlgorithm.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.17;\\n\\nimport \\\"./Algorithm.sol\\\";\\n\\n/**\\n * @dev Implements a dummy DNSSEC (signing) algorithm that approves all\\n *      signatures, for testing.\\n */\\ncontract DummyAlgorithm is Algorithm {\\n    function verify(\\n        bytes calldata,\\n        bytes calldata,\\n        bytes calldata\\n    ) external pure override returns (bool) {\\n        return true;\\n    }\\n}\\n\",\"keccak256\":\"0xb466aaf44839138995019edaa81b5b668d239a5886a518a4b552d4e3ce950dff\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610177806100206000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063de8f50a114610030575b600080fd5b61004a61003e3660046100a7565b60019695505050505050565b604051901515815260200160405180910390f35b60008083601f84011261007057600080fd5b50813567ffffffffffffffff81111561008857600080fd5b6020830191508360208285010111156100a057600080fd5b9250929050565b600080600080600080606087890312156100c057600080fd5b863567ffffffffffffffff808211156100d857600080fd5b6100e48a838b0161005e565b909850965060208901359150808211156100fd57600080fd5b6101098a838b0161005e565b9096509450604089013591508082111561012257600080fd5b5061012f89828a0161005e565b979a969950949750929593949250505056fea2646970667358221220b8e392b8bdee7bcd8433e14d81c19d4d11796b13935f2083ad8737b90e0e7c4564736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063de8f50a114610030575b600080fd5b61004a61003e3660046100a7565b60019695505050505050565b604051901515815260200160405180910390f35b60008083601f84011261007057600080fd5b50813567ffffffffffffffff81111561008857600080fd5b6020830191508360208285010111156100a057600080fd5b9250929050565b600080600080600080606087890312156100c057600080fd5b863567ffffffffffffffff808211156100d857600080fd5b6100e48a838b0161005e565b909850965060208901359150808211156100fd57600080fd5b6101098a838b0161005e565b9096509450604089013591508082111561012257600080fd5b5061012f89828a0161005e565b979a969950949750929593949250505056fea2646970667358221220b8e392b8bdee7bcd8433e14d81c19d4d11796b13935f2083ad8737b90e0e7c4564736f6c63430008110033",
+  "devdoc": {
+    "details": "Implements a dummy DNSSEC (signing) algorithm that approves all      signatures, for testing.",
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [],
+    "types": null
+  }
+}

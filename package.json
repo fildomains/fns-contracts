@@ -1,6 +1,6 @@
 {
   "name": "@fildomains/fns-contracts",
-  "version": "0.0.14",
+  "version": "1.0.0",
   "description": "FNS contracts",
   "scripts": {
     "test": "hardhat test --network hardhat",
@@ -20,6 +20,7 @@
     "artifacts",
     "deployments/filecoin/*.json",
     "deployments/hyperspace/*.json",
+    "deployments/calibration/*.json",
     "deployments/archive/**/*.json"
   ],
   "main": "index.js",
