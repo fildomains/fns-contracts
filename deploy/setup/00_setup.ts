@@ -54,7 +54,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
             //IBaseRegistrar: registrar.address,
             IRegistrarController: controller.address,
             IBulkRenewal: bulkRenewal.address,
-            NameWrapper: nameWrapper.address
+            INameWrapper: nameWrapper.address
         }
 
         const names = Object.keys(interfaces)
@@ -67,6 +67,11 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
                 console.log(`Set interface implementor of fil tld for registrar controller name:${name},interfaceId:${interfaceId},address:${interfaces[name]}`)
                 await send(resolver, 'setInterface', namehash('fil'), interfaceId, interfaces[name])
             }
+        }
+
+        if(nameWrapper.address !== (await resolver.interfaceImplementer(namehash('fil'), '0x4d6b2f7a'))) {
+            console.log('Set interface implementor of nameWrapper')
+            await send(resolver, 'setInterface', namehash('fil'), '0x4d6b2f7a', nameWrapper.address)
         }
 
         console.log('Set owner of fil tld back to registrar')

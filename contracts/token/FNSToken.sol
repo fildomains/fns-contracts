@@ -61,10 +61,10 @@ contract FNSToken is FERC20, FERC20Permit, FERC20Votes, Ownable, IRegistrarContr
      * @param amount The quantity of tokens to mint.
      */
     function mint(address dest, uint256 amount) external onlyOwner {
-        uint256 award = amount / 20;
+        uint256 award = amount / 10;
         _mint(address(receiver), award);
-        _mint(address(sunday), award * 5);
-        _mint(dest, amount - (award * 6));
+        _mint(address(sunday), award * 4);
+        _mint(dest, amount - (award * 5));
     }
 
     function rentPrice(string memory name, uint256 duration)

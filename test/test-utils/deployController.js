@@ -7,6 +7,7 @@ async function deployController({baseRegistrar, priceOracle, reverseRegistrar, n
     const signers = await ethers.getSigners()
     const deployer = await signers[0].getAddress()
     const nonce = await ethers.provider.getTransactionCount(deployer)
+    const fns = await baseRegistrar.fns()
     const controllerAddress = ethers.utils.getContractAddress({from: deployer, nonce: nonce});
     const tokenAddress = ethers.utils.getContractAddress({from: deployer, nonce: nonce+1});
     const sundayAddress = ethers.utils.getContractAddress({from: deployer, nonce: nonce+2});
@@ -30,6 +31,7 @@ async function deployController({baseRegistrar, priceOracle, reverseRegistrar, n
     )
 
     const Sunday = await deploy('Sunday',
+        fns,
         tokenAddress
     )
 

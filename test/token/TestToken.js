@@ -1,4 +1,5 @@
 const {
+  ens: { namehash },
   evm,
   reverse: { getReverseNode },
   contracts: { deploy },
@@ -9,12 +10,14 @@ const { expect } = require('chai')
 
 const { ethers } = require('hardhat')
 const provider = ethers.provider
-const { namehash, encodeName} = require('../test-utils/ens')
 const sha3 = require('web3-utils').sha3
 const {
   EMPTY_BYTES32: EMPTY_BYTES,
   EMPTY_ADDRESS: ZERO_ADDRESS,
 } = require('../test-utils/constants')
+const { Interface } = require("ethers/lib/utils");
+const { BigNumber } = require("@ethersproject/bignumber");
+const { mine } = require("../../scripts/utils");
 
 const DAYS = 24 * 60 * 60
 const REGISTRATION_TIME = 28 * DAYS
@@ -37,7 +40,6 @@ contract('FNSToken', function () {
   let reverseRegistrar
   let nameWrapper
   let dummyOracle
-  let callData
 
   const secret =
     '0x0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
@@ -58,7 +60,7 @@ contract('FNSToken', function () {
       NULL_ADDRESS,
       [],
       false,
-      0
+      0,
     )
     var tx = await controller.commit(commitment)
     expect(await controller.commitments(commitment)).to.equal(
@@ -145,7 +147,7 @@ contract('FNSToken', function () {
   before(async () => {
     signers = await ethers.getSigners()
     ownerAccount = await signers[0].getAddress()
-    registrantAccount = await signers[1].getAddress()
+    registrantAccount = ownerAccount
     accounts = [ownerAccount, registrantAccount, await signers[2].getAddress()]
 
     fns = await deploy('Registry')
@@ -172,8 +174,6 @@ contract('FNSToken', function () {
         ownerAccount,
     )
 
-    await fns.setSubnodeOwner(EMPTY_BYTES, sha3('fil'), baseRegistrar.address)
-
     dummyOracle = await deploy('DummyOracle', '100000000')
     priceOracle = await deploy(
       'StablePriceOracle',
@@ -192,6 +192,18 @@ contract('FNSToken', function () {
         controller.address,
         reverseRegistrar.address,
     )
+
+    await fns.setSubnodeRecord(
+        '0x0000000000000000000000000000000000000000000000000000000000000000',
+        sha3('fil'),
+        ownerAccount,
+        resolver.address,
+        0,
+    )
+    await resolver.setInterface(namehash('fil'), '0x4d6b2f7a', nameWrapper.address)
+
+    await fns.setSubnodeOwner(EMPTY_BYTES, sha3('fil'), baseRegistrar.address)
+
     await reverseRegistrar.setDefaultResolver(resolver.address)
 
     controller2 = controller.connect(signers[1])
@@ -206,18 +218,6 @@ contract('FNSToken', function () {
     await nameWrapper.setController(controller.address, true)
     await baseRegistrar.addController(nameWrapper.address)
     await reverseRegistrar.setController(controller.address, true)
-
-    callData = [
-      resolver.interface.encodeFunctionData('setAddr(bytes32,address)', [
-        namehash('newconfigname.fil'),
-        registrantAccount,
-      ]),
-      resolver.interface.encodeFunctionData('setText', [
-        namehash('newconfigname.fil'),
-        'url',
-        'ethereum.com',
-      ]),
-    ]
 
     resolver2 = await resolver.connect(signers[1])
 
@@ -259,8 +259,12 @@ contract('FNSToken', function () {
     ).to.equal(Math.floor((REGISTRATION_TIME * 9) /10))
 
     expect(
+        (await token.balanceOf(receiverAddress)),
+    ).to.equal('10000000000000000000')
+
+    expect(
         (await token.balanceOf(ownerAccount)),
-    ).to.equal('70000000000000000000')
+    ).to.equal('50000000000000000000')
   })
 
   it('it can only be pledged on sundays', async () => {
@@ -302,7 +306,7 @@ contract('FNSToken', function () {
     await token.pledge('1000000000000000000')
     expect(
         (await token.balanceOf(ownerAccount)).toString(),
-    ).to.equal('69000000000000000000')
+    ).to.equal('49000000000000000000')
 
     expect(
         (await sunday.balanceOf(ownerAccount)).toString(),
@@ -315,7 +319,7 @@ contract('FNSToken', function () {
     await sunday.withdrawal('1000000000000000000')
     expect(
         (await token.balanceOf(ownerAccount)).toString(),
-    ).to.equal('70000000000000000000')
+    ).to.equal('50000000000000000000')
 
     expect(
         (await sunday.balanceOf(ownerAccount)).toString(),
@@ -335,10 +339,10 @@ contract('FNSToken', function () {
     await token.pledge('1000000000000000000')
     expect(
         (await token.balanceOf(ownerAccount)).toString(),
-    ).to.equal('69000000000000000000')
+    ).to.equal('49000000000000000000')
 
     await expect(
-        sunday.claimEarnings(),
+        sunday.claimEarnings(namehash('newconfigname.fil')),
     ).to.be.revertedWith('Pausable: not paused')
 
     let sundayFnsBalance = await token.balanceOf(sundayAddress)
@@ -349,21 +353,21 @@ contract('FNSToken', function () {
     ).to.equal(Math.floor((REGISTRATION_TIME * 9) /10))
     expect(
         sundayFnsBalance.sub(totalSupply).toString(),
-    ).to.equal('25000000000000000000')
+    ).to.equal('40000000000000000000')
 
     await evm.advanceTime(24 * 3600)
     const week = await sunday.week()
     await expect(
-        sunday.claimEarnings(),
+        sunday.claimEarnings(namehash('newconfigname.fil')),
     ).to.emit(sunday, 'Earnings')
-        .withArgs(ownerAccount, week, Math.floor(balance/ 64).toString(), sundayFnsBalance.sub(totalSupply).div(64).toString())
+        .withArgs(namehash('newconfigname.fil'), ownerAccount, week, Math.floor(balance/ 64).toString(), sundayFnsBalance.sub(totalSupply).div(64).toString())
 
     await expect(
-        sunday.claimEarnings(),
+        sunday.claimEarnings(namehash('newconfigname.fil')),
     ).to.be.revertedWith('SUN: already claim earnings')
   })
 
-  it('you cant collect your earnings on sundays with fns', async () => {
+  it('you can collect your earnings on sundays with fns', async () => {
     let beforeBalance = parseInt(await web3.eth.getBalance(receiverAddress))
 
     await registerName('newconfigname')
@@ -372,9 +376,9 @@ contract('FNSToken', function () {
     let sundayFnsBalance = await token.balanceOf(sundayAddress)
     expect(
         sundayFnsBalance.toString(),
-    ).to.equal('25000000000002177280')
+    ).to.equal('40000000000002177280')
     let baseCost = ethers.BigNumber.from(REGISTRATION_TIME)
-    let balance = ethers.BigNumber.from('69000000000000000000')
+    let balance = ethers.BigNumber.from('49000000000000000000')
     balance = balance.sub(baseCost)
     var dayOfWeek = await getDay();
 
@@ -387,10 +391,10 @@ contract('FNSToken', function () {
 
     expect(
         (await token.balanceOf(receiverAddress)).toString(),
-    ).to.equal(baseCost.div(10).add(ethers.BigNumber.from('5000000000000000000')).toString())
+    ).to.equal(baseCost.div(10).add(ethers.BigNumber.from('10000000000000000000')).toString())
 
     await expect(
-        sunday.claimEarnings(),
+        sunday.claimEarnings(namehash('newconfigname.fil')),
     ).to.be.revertedWith('Pausable: not paused')
 
     let totalSupply = await sunday.totalSupply()
@@ -407,18 +411,172 @@ contract('FNSToken', function () {
     sundayFnsBalance = await token.balanceOf(sundayAddress)
     expect(
         sundayFnsBalance.toString(),
-    ).to.equal('26000000000002177280')
+    ).to.equal('41000000000002177280')
+
+    await evm.advanceTime(24 * 3600)
+    let week = await sunday.week()
+    let nameWrapperAddress = await sunday.getNameWrapper()
+    expect(
+        nameWrapperAddress,
+    ).to.equal(nameWrapper.address)
+    await expect(
+        sunday.claimEarnings(namehash('newconfigname.fil')),
+    ).to.emit(sunday, 'Earnings')
+        .withArgs(namehash('newconfigname.fil'), ownerAccount, week, Math.floor(sundayBalance/ 64).toString(), baseCost.mul(9).div(640).add(ethers.BigNumber.from('40000000000000000000').div(64)).toString())  // 90% of the proceeds go into the pledge pool
+
+    await expect(
+        sunday.claimEarnings(namehash('newconfigname.fil')),
+    ).to.be.revertedWith('SUN: already claim earnings')
+
+    await evm.advanceTime(15 * 7 * 24 * 3600)
+    await mine(network.provider)
+
+    totalSupply = await sunday.totalSupply()
+    sundayBalance = parseInt(await web3.eth.getBalance(sundayAddress))
+    sundayFnsBalance = await token.balanceOf(sundayAddress)
+    week = await sunday.week()
+    await expect(
+        sunday.claimEarnings(namehash('newconfigname.fil')),
+    ).to.emit(sunday, 'Earnings')
+        .withArgs(namehash('newconfigname.fil'), ownerAccount, week, Math.floor(sundayBalance/ 64).toString(), sundayFnsBalance.sub(totalSupply).div(64).toString())
+
+    await evm.advanceTime(2 * 7 * 24 * 3600)
+
+    await expect(
+        sunday.claimEarnings(namehash('newconfigname.fil')),
+    ).to.be.revertedWith('SUN: claimEarnings to the zero address')
+  })
+
+  it('you can collect your earnings on sundays with fns, using subnames', async () => {
+    let beforeBalance = parseInt(await web3.eth.getBalance(receiverAddress))
+
+    await registerName('newconfigname')
+    await registerNameFns('newconfigname1')
+
+    let sundayFnsBalance = await token.balanceOf(sundayAddress)
+    expect(
+        sundayFnsBalance.toString(),
+    ).to.equal('40000000000002177280')
+    let baseCost = ethers.BigNumber.from(REGISTRATION_TIME)
+    let balance = ethers.BigNumber.from('49000000000000000000')
+    balance = balance.sub(baseCost)
+    var dayOfWeek = await getDay();
+
+    //Sunday
+    await evm.advanceTime((7 - dayOfWeek) * 24 * 3600)
+    await token.pledge('1000000000000000000')
+    expect(
+        (await token.balanceOf(ownerAccount)).toString(),
+    ).to.equal(balance.toString())
+
+    expect(
+        (await token.balanceOf(receiverAddress)).toString(),
+    ).to.equal(baseCost.div(10).add(ethers.BigNumber.from('10000000000000000000')).toString())
+
+    await expect(
+        sunday.claimEarnings(namehash('newconfigname.fil')),
+    ).to.be.revertedWith('Pausable: not paused')
+
+    let totalSupply = await sunday.totalSupply()
+    expect(
+        totalSupply.toString(),
+    ).to.equal('1000000000000000000')
+    let sundayBalance = parseInt(await web3.eth.getBalance(sundayAddress))
+    expect(
+        sundayBalance,
+    ).to.equal(Math.floor((REGISTRATION_TIME * 9) /10))
+    expect(
+        parseInt(await web3.eth.getBalance(receiverAddress)) - beforeBalance,
+    ).to.equal(Math.floor(REGISTRATION_TIME /10))
+    sundayFnsBalance = await token.balanceOf(sundayAddress)
+    expect(
+        sundayFnsBalance.toString(),
+    ).to.equal('41000000000002177280')
 
     await evm.advanceTime(24 * 3600)
     const week = await sunday.week()
-    await expect(
-        sunday.claimEarnings(),
-    ).to.emit(sunday, 'Earnings')
-        .withArgs(ownerAccount, week, Math.floor(sundayBalance/ 64).toString(), baseCost.mul(9).div(640).add(ethers.BigNumber.from('25000000000000000000').div(64)).toString())  // 90% of the proceeds go into the pledge pool
+    const nameWrapperAddress = await sunday.getNameWrapper()
+    expect(
+        nameWrapperAddress,
+    ).to.equal(nameWrapper.address)
+
+    await nameWrapper.setSubnodeRecord(
+        namehash('newconfigname.fil'),
+        'a',
+        ownerAccount,
+        resolver.address,
+        '0',
+        0,
+        BigNumber.from(2).pow(64).sub(1)
+    )
 
     await expect(
-        sunday.claimEarnings(),
+        sunday.claimEarnings(namehash('a.newconfigname.fil')),
+    ).to.emit(sunday, 'Earnings')
+        .withArgs(namehash('a.newconfigname.fil'), ownerAccount, week, Math.floor(sundayBalance/ 64).toString(), baseCost.mul(9).div(640).add(ethers.BigNumber.from('40000000000000000000').div(64)).toString())  // 90% of the proceeds go into the pledge pool
+
+    await expect(
+        sunday.claimEarnings(namehash('a.newconfigname.fil')),
     ).to.be.revertedWith('SUN: already claim earnings')
+  })
+
+  it('you cant collect your earnings on sundays with fns, name has been unwarp to base', async () => {
+    let beforeBalance = parseInt(await web3.eth.getBalance(receiverAddress))
+
+    await registerName('newconfigname')
+    await registerNameFns('newconfigname1')
+
+    let sundayFnsBalance = await token.balanceOf(sundayAddress)
+    expect(
+        sundayFnsBalance.toString(),
+    ).to.equal('40000000000002177280')
+    let baseCost = ethers.BigNumber.from(REGISTRATION_TIME)
+    let balance = ethers.BigNumber.from('49000000000000000000')
+    balance = balance.sub(baseCost)
+    var dayOfWeek = await getDay();
+
+    //Sunday
+    await evm.advanceTime((7 - dayOfWeek) * 24 * 3600)
+    await token.pledge('1000000000000000000')
+    expect(
+        (await token.balanceOf(ownerAccount)).toString(),
+    ).to.equal(balance.toString())
+
+    expect(
+        (await token.balanceOf(receiverAddress)).toString(),
+    ).to.equal(baseCost.div(10).add(ethers.BigNumber.from('10000000000000000000')).toString())
+
+    await expect(
+        sunday.claimEarnings(namehash('newconfigname.fil')),
+    ).to.be.revertedWith('Pausable: not paused')
+
+    let totalSupply = await sunday.totalSupply()
+    expect(
+        totalSupply.toString(),
+    ).to.equal('1000000000000000000')
+    let sundayBalance = parseInt(await web3.eth.getBalance(sundayAddress))
+    expect(
+        sundayBalance,
+    ).to.equal(Math.floor((REGISTRATION_TIME * 9) /10))
+    expect(
+        parseInt(await web3.eth.getBalance(receiverAddress)) - beforeBalance,
+    ).to.equal(Math.floor(REGISTRATION_TIME /10))
+    sundayFnsBalance = await token.balanceOf(sundayAddress)
+    expect(
+        sundayFnsBalance.toString(),
+    ).to.equal('41000000000002177280')
+
+    await nameWrapper.unwrap2LD(sha3('newconfigname'), ownerAccount, baseRegistrar.address)
+
+    await evm.advanceTime(24 * 3600)
+    const week = await sunday.week()
+    const nameWrapperAddress = await sunday.getNameWrapper()
+    expect(
+        nameWrapperAddress,
+    ).to.equal(nameWrapper.address)
+    await expect(
+        sunday.claimEarnings(namehash('newconfigname.fil')),
+    ).to.be.revertedWith('SUN: claimEarnings to the zero address')
   })
 
   it('the function registerFns of RegistrarController cannot be called directly', async () => {
@@ -532,7 +690,8 @@ contract('FNSToken', function () {
     await registerNameFns('newconfigname1')
 
     expect(await web3.eth.getBalance(receiverAddress)).to.be.equal('241920')
-    expect((await token.balanceOf(receiverAddress)).sub((ethers.BigNumber.from('5000000000000000000')))).to.be.equal('241920')
+    expect((await token.balanceOf(sundayAddress)).toString()).to.be.equal('40000000000002177280')
+    expect((await token.balanceOf(receiverAddress)).toString()).to.be.equal('10000000000000241920')
 
     const reciverOther = receiver.connect(signers[5])
 
@@ -561,7 +720,7 @@ contract('FNSToken', function () {
     const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
     const balance = ethers.BigNumber.from(await web3.eth.getBalance(withdrawAddress))
     expect(balance).to.be.equal(beforeBalance.sub(gasUsed).add(241920))
-    expect((await token.balanceOf(withdrawAddress)).sub(ethers.BigNumber.from('5000000000000000000'))).to.be.equal('241920')
+    expect((await token.balanceOf(withdrawAddress)).toString()).to.be.equal('10000000000000241920')
 
     expect(await web3.eth.getBalance(receiverAddress)).to.be.equal('0')
     expect(await token.balanceOf(receiverAddress)).to.be.equal('0')
@@ -603,8 +762,6 @@ contract('FNSToken', function () {
         ['newconfigname1', 'newconfigname2'],
         DAYS
     )
-
-    console.log('result:', result)
 
     expect(result[0]).to.be.equal(DAYS * 2)
     expect(result[1]).to.be.equal(DAYS * 2)

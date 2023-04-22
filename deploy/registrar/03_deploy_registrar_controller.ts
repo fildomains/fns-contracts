@@ -25,6 +25,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deploy, fetchIfDifferent } = deployments
   const { deployer, owner } = await getNamedAccounts()
 
+  const registry = await ethers.getContract('Registry')
   const registrar = await ethers.getContract('BaseRegistrarImplementation')
   const priceOracle = await ethers.getContract('ExponentialPremiumPriceOracle')
   const reverseRegistrar = await ethers.getContract('ReverseRegistrar', owner)
@@ -69,6 +70,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   await deploy('Sunday', {
     from: deployer,
     args: [
+      registry.address,
       tokenAddress
     ],
     log: true,
