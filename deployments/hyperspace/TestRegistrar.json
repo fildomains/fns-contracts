@@ -1,0 +1,171 @@
+{
+  "address": "0xa3EbDa67C33d311078Cf6eD59BF944A3610fb873",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract FNS",
+          "name": "fnsAddr",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "node",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "expiryTimes",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "fns",
+      "outputs": [
+        {
+          "internalType": "contract FNS",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "label",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "register",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "rootNode",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0x6e51f35362639474754a4540ec66aaba2ab8558937600e3f2e0291a998042577",
+  "receipt": {
+    "to": null,
+    "from": "0x6EbD420C78A3DAd8D0cF9A168EFD2F5bF2C22711",
+    "contractAddress": "0xa3EbDa67C33d311078Cf6eD59BF944A3610fb873",
+    "transactionIndex": 0,
+    "gasUsed": "45475663",
+    "logsBloom": "0x0000008510100002c0604040020004004c0000004400001480810020048010090010860208210400400000051004a400000a402000402222180000280224c91000000009400a00030c10025840d40300040b900041042408000f101080104000088050418a282020003088008043c8001080080060280002200100d04482c04000000004003002106401c000401000080000400000808080100870000410810032008080230002200002a10010040a004040400a004000402908081800000020024004722010430000266c00000420002008008014018010900900600460680260110200088000000018104a000840120040000000008180000004a000400020",
+    "blockHash": "0x6375163d9868c67135d9e821ba589c93af2333409b0d869c788b87fc1fcfd461",
+    "transactionHash": "0x6e51f35362639474754a4540ec66aaba2ab8558937600e3f2e0291a998042577",
+    "logs": [],
+    "blockNumber": 276877,
+    "cumulativeGasUsed": "0",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x0000000000Ec577Ad90e99CA7817e976e953C3bd",
+    "0x9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "94c511ccef30681c8028349b05f9c84f",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.17+commit.8df45f5f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract FNS\",\"name\":\"fnsAddr\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"node\",\"type\":\"bytes32\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"expiryTimes\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"fns\",\"outputs\":[{\"internalType\":\"contract FNS\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"label\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"register\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"rootNode\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"constructor\":{\"params\":{\"fnsAddr\":\"The address of the FNS registry.\",\"node\":\"The node that this registrar administers.\"}},\"register(bytes32,address)\":{\"params\":{\"label\":\"The hash of the label to register.\",\"owner\":\"The address of the new owner.\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{\"constructor\":{\"notice\":\"Constructor.\"},\"register(bytes32,address)\":{\"notice\":\"Register a name that's not currently registered\"}},\"notice\":\"A registrar that allocates subdomains to the first person to claim them, but expires registrations a fixed period after they're initially claimed.\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/registry/TestRegistrar.sol\":\"TestRegistrar\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1500},\"remappings\":[]},\"sources\":{\"contracts/registry/FNS.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.17;\\n\\ninterface FNS {\\n    // Logged when the owner of a node assigns a new owner to a subnode.\\n    event NewOwner(bytes32 indexed node, bytes32 indexed label, address owner);\\n\\n    // Logged when the owner of a node transfers ownership to a new account.\\n    event Transfer(bytes32 indexed node, address owner);\\n\\n    // Logged when the resolver for a node changes.\\n    event NewResolver(bytes32 indexed node, address resolver);\\n\\n    // Logged when the TTL of a node changes\\n    event NewTTL(bytes32 indexed node, uint64 ttl);\\n\\n    // Logged when an operator is added or removed.\\n    event ApprovalForAll(\\n        address indexed owner,\\n        address indexed operator,\\n        bool approved\\n    );\\n\\n    function setRecord(\\n        bytes32 node,\\n        address owner,\\n        address resolver,\\n        uint64 ttl\\n    ) external;\\n\\n    function setSubnodeRecord(\\n        bytes32 node,\\n        bytes32 label,\\n        address owner,\\n        address resolver,\\n        uint64 ttl\\n    ) external;\\n\\n    function setSubnodeOwner(\\n        bytes32 node,\\n        bytes32 label,\\n        address owner\\n    ) external returns (bytes32);\\n\\n    function setResolver(bytes32 node, address resolver) external;\\n\\n    function setOwner(bytes32 node, address owner) external;\\n\\n    function setTTL(bytes32 node, uint64 ttl) external;\\n\\n    function setApprovalForAll(address operator, bool approved) external;\\n\\n    function owner(bytes32 node) external view returns (address);\\n\\n    function resolver(bytes32 node) external view returns (address);\\n\\n    function ttl(bytes32 node) external view returns (uint64);\\n\\n    function recordExists(bytes32 node) external view returns (bool);\\n\\n    function isApprovedForAll(\\n        address owner,\\n        address operator\\n    ) external view returns (bool);\\n}\\n\",\"keccak256\":\"0x8efba8a5dadf389cb81128766eb094397e84a7993bff2d656e9006ec6ed5cade\",\"license\":\"MIT\"},\"contracts/registry/TestRegistrar.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.17;\\n\\nimport \\\"./FNS.sol\\\";\\n\\n/**\\n * A registrar that allocates subdomains to the first person to claim them, but\\n * expires registrations a fixed period after they're initially claimed.\\n */\\ncontract TestRegistrar {\\n    uint256 constant registrationPeriod = 4 weeks;\\n\\n    FNS public immutable fns;\\n    bytes32 public immutable rootNode;\\n    mapping(bytes32 => uint256) public expiryTimes;\\n\\n    /**\\n     * Constructor.\\n     * @param fnsAddr The address of the FNS registry.\\n     * @param node The node that this registrar administers.\\n     */\\n    constructor(FNS fnsAddr, bytes32 node) {\\n        fns = fnsAddr;\\n        rootNode = node;\\n    }\\n\\n    /**\\n     * Register a name that's not currently registered\\n     * @param label The hash of the label to register.\\n     * @param owner The address of the new owner.\\n     */\\n    function register(bytes32 label, address owner) public {\\n        require(expiryTimes[label] < block.timestamp);\\n\\n        expiryTimes[label] = block.timestamp + registrationPeriod;\\n        fns.setSubnodeOwner(rootNode, label, owner);\\n    }\\n}\\n\",\"keccak256\":\"0x5cedfb8466834d6f494739fa5bcaf6e27050ff64608924291f3913679ada75f7\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60c060405234801561001057600080fd5b506040516103ca3803806103ca83398101604081905261002f91610045565b6001600160a01b0390911660805260a05261007f565b6000806040838503121561005857600080fd5b82516001600160a01b038116811461006f57600080fd5b6020939093015192949293505050565b60805160a05161031a6100b06000396000818160ea015261016d015260008181608901526101b7015261031a6000f3fe608060405234801561001057600080fd5b506004361061004c5760003560e01c8063af9f26e414610051578063b382e4c514610084578063d22057a9146100d0578063faff50a8146100e5575b600080fd5b61007161005f366004610229565b60006020819052908152604090205481565b6040519081526020015b60405180910390f35b6100ab7f000000000000000000000000000000000000000000000000000000000000000081565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200161007b565b6100e36100de366004610242565b61010c565b005b6100717f000000000000000000000000000000000000000000000000000000000000000081565b600082815260208190526040902054421161012657600080fd5b6101336224ea004261028b565b6000838152602081905260409081902091909155517f06ab59230000000000000000000000000000000000000000000000000000000081527f000000000000000000000000000000000000000000000000000000000000000060048201526024810183905273ffffffffffffffffffffffffffffffffffffffff82811660448301527f000000000000000000000000000000000000000000000000000000000000000016906306ab5923906064016020604051808303816000875af1158015610200573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061022491906102cb565b505050565b60006020828403121561023b57600080fd5b5035919050565b6000806040838503121561025557600080fd5b82359150602083013573ffffffffffffffffffffffffffffffffffffffff8116811461028057600080fd5b809150509250929050565b808201808211156102c5577f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b92915050565b6000602082840312156102dd57600080fd5b505191905056fea2646970667358221220fb61c5d559d8678533a8fd26da0e61a8781300856429138779933407a0858abc64736f6c63430008110033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061004c5760003560e01c8063af9f26e414610051578063b382e4c514610084578063d22057a9146100d0578063faff50a8146100e5575b600080fd5b61007161005f366004610229565b60006020819052908152604090205481565b6040519081526020015b60405180910390f35b6100ab7f000000000000000000000000000000000000000000000000000000000000000081565b60405173ffffffffffffffffffffffffffffffffffffffff909116815260200161007b565b6100e36100de366004610242565b61010c565b005b6100717f000000000000000000000000000000000000000000000000000000000000000081565b600082815260208190526040902054421161012657600080fd5b6101336224ea004261028b565b6000838152602081905260409081902091909155517f06ab59230000000000000000000000000000000000000000000000000000000081527f000000000000000000000000000000000000000000000000000000000000000060048201526024810183905273ffffffffffffffffffffffffffffffffffffffff82811660448301527f000000000000000000000000000000000000000000000000000000000000000016906306ab5923906064016020604051808303816000875af1158015610200573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061022491906102cb565b505050565b60006020828403121561023b57600080fd5b5035919050565b6000806040838503121561025557600080fd5b82359150602083013573ffffffffffffffffffffffffffffffffffffffff8116811461028057600080fd5b809150509250929050565b808201808211156102c5577f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b92915050565b6000602082840312156102dd57600080fd5b505191905056fea2646970667358221220fb61c5d559d8678533a8fd26da0e61a8781300856429138779933407a0858abc64736f6c63430008110033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "constructor": {
+        "params": {
+          "fnsAddr": "The address of the FNS registry.",
+          "node": "The node that this registrar administers."
+        }
+      },
+      "register(bytes32,address)": {
+        "params": {
+          "label": "The hash of the label to register.",
+          "owner": "The address of the new owner."
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {
+      "constructor": {
+        "notice": "Constructor."
+      },
+      "register(bytes32,address)": {
+        "notice": "Register a name that's not currently registered"
+      }
+    },
+    "notice": "A registrar that allocates subdomains to the first person to claim them, but expires registrations a fixed period after they're initially claimed.",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 16853,
+        "contract": "contracts/registry/TestRegistrar.sol:TestRegistrar",
+        "label": "expiryTimes",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_mapping(t_bytes32,t_uint256)"
+      }
+    ],
+    "types": {
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_mapping(t_bytes32,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      }
+    }
+  }
+}
